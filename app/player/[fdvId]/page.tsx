@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import ShareButton from '@/components/ShareButton';
+import AvatarImage from '@/components/AvatarImage';
 import StatCard from '@/components/StatCard';
 import { getPlayerInfo, getPlayerScapeSummary, getPlayerMaterials, getPlayerEquipment, getPlayerMatchHistory, getPlayerPlanetSummary, getPlayerCombatStats, getTotalNFTs } from '@/lib/queries/player';
 
@@ -46,8 +47,7 @@ export default async function PlayerPage({ params }: Props) {
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Header */}
       <section className="bg-gray-900 rounded-xl p-6 border border-gray-800 flex flex-col sm:flex-row items-center gap-6">
-        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366F1&color=fff&size=128`}
-          alt={name} className="w-24 h-24 rounded-full" width={96} height={96} />
+        <AvatarImage fdvId={id} name={name} size={96} />
         <div className="text-center sm:text-left flex-1">
           <h1 className="text-3xl font-bold">{name}</h1>
           <p className="text-purple-400 text-lg">Level {s?.max_level || '?'} · {Number(s?.max_total_xp || 0).toLocaleString()} XP</p>

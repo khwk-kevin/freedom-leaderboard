@@ -111,7 +111,7 @@ export async function getPlayerCombatStats(fdvId: number) {
 
 export async function getTotalNFTs(fdvId: number): Promise<number> {
   const rows = await neonSql`
-    SELECT COALESCE(SUM(received_nft), 0)::int as total_nfts
+    SELECT COALESCE(SUM(received_nft::int), 0)::int as total_nfts
     FROM web_card_game_prod.game_match_resulted WHERE player_fdv_id = ${fdvId}
   `;
   return (rows[0] as { total_nfts: number })?.total_nfts || 0;

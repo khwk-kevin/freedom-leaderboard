@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AvatarImage from './AvatarImage';
 
 type Entry = { fdv_id?: number; fdv_user_id?: number; avatar_name?: string | null; stat: string | number; level?: number | null };
 
@@ -23,10 +24,7 @@ export default function LeaderboardTable({ entries, statLabel }: { entries: Entr
                 <td className="py-3 px-2 text-gray-500 font-mono">{i + 1}</td>
                 <td className="py-3 px-2">
                   <Link href={`/player/${id}`} className="flex items-center gap-3 hover:text-purple-400 transition-colors">
-                    <img
-                      src={`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366F1&color=fff&size=32`}
-                      alt="" className="w-8 h-8 rounded-full" width={32} height={32}
-                    />
+                    <AvatarImage fdvId={id} name={name} size={32} />
                     <span className="font-medium truncate max-w-[200px]">{name}</span>
                   </Link>
                 </td>
