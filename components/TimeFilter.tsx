@@ -23,11 +23,11 @@ export default function TimeFilter() {
             params.set('time', f.key);
             router.push(`?${params.toString()}`);
           }}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            current === f.key
-              ? 'bg-purple-600 text-white'
-              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-          }`}
+          className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+          style={current === f.key
+            ? { background: '#00FF88', color: '#000000', boxShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
+            : { background: 'transparent', border: '1.5px solid #2A2A2A', color: '#7A8A99' }
+          }
         >
           {f.label}
         </button>

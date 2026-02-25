@@ -46,19 +46,23 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">🏆 Leaderboards</h1>
-        <p className="text-gray-400">See who dominates the Freedom World</p>
+        <h1 className="text-3xl font-black mb-2">🏆 Leaderboards</h1>
+        <p style={{ color: '#7A8A99' }}>See who dominates the Freedom World</p>
       </div>
 
       <Suspense><TimeFilter /></Suspense>
 
       {/* Scape tabs */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-300 mb-3">The Scape</h2>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: '#B8C5D0' }}>The Scape</h2>
         <div className="flex gap-2 flex-wrap">
           {scapeTabs.map(t => (
             <a key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${cat === t.key ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={cat === t.key
+                ? { background: '#00FF88', color: '#000000', boxShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
+                : { background: '#1A1A1A', color: '#7A8A99', border: '1px solid #1E2529' }
+              }>
               {t.label}
             </a>
           ))}
@@ -67,11 +71,15 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
 
       {/* Planet tabs */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-300 mb-3">Planets</h2>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: '#B8C5D0' }}>Planets</h2>
         <div className="flex gap-2 flex-wrap">
           {planetTabs.map(t => (
             <a key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${cat === t.key ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              style={cat === t.key
+                ? { background: '#00FF88', color: '#000000', boxShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
+                : { background: '#1A1A1A', color: '#7A8A99', border: '1px solid #1E2529' }
+              }>
               {t.label}
             </a>
           ))}
@@ -79,7 +87,7 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
       </div>
 
       {/* Table */}
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+      <div className="card">
         <h2 className="text-xl font-bold mb-4">{currentTab.label}</h2>
         <LeaderboardTable entries={data} statLabel={currentTab.statLabel} />
       </div>

@@ -30,17 +30,20 @@ export default function SearchBar({ placeholder = 'Search players...' }: { place
         type="text" value={query} placeholder={placeholder}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}
-        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+        className="w-full px-4 py-3 rounded-xl text-white transition-all focus:outline-none"
+        style={{ background: '#1A1A1A', border: '1px solid #1E2529', color: '#FFFFFF' }}
       />
       {open && results.length > 0 && (
-        <div className="absolute top-full mt-2 w-full bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-xl z-50">
+        <div className="absolute top-full mt-2 w-full rounded-xl overflow-hidden shadow-xl z-50"
+          style={{ background: '#0D1215', border: '1px solid #1E2529' }}>
           {results.map((r) => (
-            <button key={r.fdv_id} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-700 transition-colors text-left"
+            <button key={r.fdv_id} className="w-full flex items-center gap-3 px-4 py-3 transition-colors text-left hover:bg-white/[0.03]"
               onClick={() => { router.push(`/player/${r.fdv_id}`); setOpen(false); setQuery(''); }}>
-              <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(r.avatar_name || '')}&background=6366F1&color=fff&size=24`}
-                alt="" className="w-6 h-6 rounded-full" width={24} height={24} />
+              <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(r.avatar_name || '')}&background=0D1215&color=00FF88&size=24`}
+                alt="" className="w-6 h-6 rounded-full" width={24} height={24}
+                style={{ border: '1px solid #1E2529' }} />
               <span className="text-white">{r.avatar_name || `#FDW${r.fdv_id}`}</span>
-              <span className="text-gray-500 text-sm ml-auto">#{r.fdv_id}</span>
+              <span className="text-sm ml-auto" style={{ color: '#7A8A99' }}>#{r.fdv_id}</span>
             </button>
           ))}
         </div>
