@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Loadout - Freedom World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: {
+                            DEFAULT: '#0A0E10', // Page background
+                            card: '#0D1215',    // Card/section background
+                            inner: '#1A1A1A',   // Inner card/nested element
+                        },
+                        border: {
+                            DEFAULT: '#1E2529',
+                            hover: '#2A2A2A',
+                        },
+                        primary: {
+                            DEFAULT: '#00FF88', // Neon Green
+                            glow: 'rgba(0, 255, 136, 0.4)',
+                            hover: '#00FFB8',
+                        },
+                        rarity: {
+                            common: '#7A8A99',
+                            uncommon: '#00FF88',
+                            rare: '#3B82F6',
+                            epic: '#9D4EDD',
+                            legendary: '#FFD700',
+                        },
+                        stat: {
+                            vitality: '#00FF88',
+                            spirit: '#A78BFA',
+                            might: '#FF6B6B',
+                        },
+                        text: {
+                            primary: '#FFFFFF',
+                            secondary: '#B8C5D0',
+                            muted: '#AAB8C5', // Increased contrast from #7A8A99 for WCAG AA
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0px 4px 12px rgba(0, 0, 0, 0.4)',
+                        'glow-primary': '0px 0px 16px rgba(0, 255, 136, 0.3)',
+                        'glow-epic': '0px 0px 16px rgba(157, 78, 221, 0.3)',
+                        'glow-legendary': '0px 0px 20px rgba(255, 215, 0, 0.4)',
+                        'glow-rare': '0px 0px 16px rgba(59, 130, 246, 0.3)',
+                    },
+                    backgroundImage: {
+                        'gradient-legendary': 'linear-gradient(to right, #FFD700, #FFA500)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0E10;
+            color: #FFFFFF;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0E10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E2529;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2A2A2A;
+        }
+        
+        .text-shadow-glow {
+            text-shadow: 0px 0px 8px rgba(0, 255, 136, 0.6);
+        }
+        .text-shadow-glow-epic {
+            text-shadow: 0px 0px 8px rgba(157, 78, 221, 0.6);
+        }
+        
+        /* Rarity Background Tints */
+        .bg-tint-epic { background-color: rgba(157, 78, 221, 0.05); }
+        .bg-tint-rare { background-color: rgba(59, 130, 246, 0.05); }
+        .bg-tint-legendary { background-color: rgba(255, 215, 0, 0.05); }
+        .bg-tint-uncommon { background-color: rgba(0, 255, 136, 0.05); }
+        
+        /* Hexagon Clip Path for Levels */
+        .hexagon {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- Mobile Navigation (Hamburger) -->
+    <div class="md:hidden fixed top-0 left-0 right-0 z-50 bg-bg-card border-b border-border h-16 flex items-center justify-between px-4">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-black font-bold text-lg">F</div>
+            <span class="font-bold text-lg tracking-tight">FREEDOM</span>
+        </div>
+        <button id="mobile-menu-btn" class="text-text-secondary hover:text-white">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="hidden md:flex flex-col w-64 bg-bg-card border-r border-border h-screen sticky top-0 z-40">
+        <div class="p-6 flex items-center gap-3 border-b border-border/50">
+            <div class="w-8 h-8 rounded bg-primary shadow-[0_0_12px_rgba(0,255,136,0.4)] flex items-center justify-center text-black font-bold text-lg">F</div>
+            <span class="font-bold text-xl tracking-tight text-white">FREEDOM</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <div class="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 px-2">Character</div>
+            <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-lg text-text-secondary hover:bg-bg-inner hover:text-white transition-colors group">
+                <i class="fa-solid fa-user-astronaut w-5 text-center group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Profile Overview</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-lg bg-bg-inner text-white border border-border transition-colors group relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                <i class="fa-solid fa-shield-halved w-5 text-center text-primary"></i>
+                <span class="font-bold">Loadout</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-lg text-text-secondary hover:bg-bg-inner hover:text-white transition-colors group">
+                <i class="fa-solid fa-wand-magic-sparkles w-5 text-center group-hover:text-stat-spirit transition-colors"></i>
+                <span class="font-medium">Abilities</span>
+            </a>
+            
+            <div class="mt-6 text-xs font-bold text-text-muted uppercase tracking-wider mb-2 px-2">Game World</div>
+            <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-lg text-text-secondary hover:bg-bg-inner hover:text-white transition-colors group">
+                <i class="fa-solid fa-map w-5 text-center group-hover:text-rarity-legendary transition-colors"></i>
+                <span class="font-medium">The Scape Map</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-lg text-text-secondary hover:bg-bg-inner hover:text-white transition-colors group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-stat-might transition-colors"></i>
+                <span class="font-medium">Guild Wars</span>
+                <span class="ml-auto bg-stat-might/20 text-stat-might text-[10px] px-2 py-0.5 rounded-full font-bold">LIVE</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-lg text-text-secondary hover:bg-bg-inner hover:text-white transition-colors group">
+                <i class="fa-solid fa-store w-5 text-center group-hover:text-rarity-epic transition-colors"></i>
+                <span class="font-medium">Marketplace</span>
+            </a>
+        </div>
+
+        <div class="p-4 border-t border-border/50">
+            <div class="flex items-center gap-3 px-2 py-2 rounded-lg bg-bg-inner border border-border">
+                <div class="relative">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-10 h-10 rounded-full object-cover border-2 border-primary">
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-primary border-2 border-bg-inner rounded-full"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-bold text-white truncate">Kael'thas</div>
+                    <div class="text-xs text-text-muted truncate">Lvl 64 Shadowblade</div>
+                </div>
+                <button class="text-text-muted hover:text-white"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 min-w-0 pt-16 md:pt-0">
+        
+        <!-- Header / Top Bar -->
+        <header class="bg-bg-card/50 backdrop-blur-md border-b border-border sticky top-0 z-30 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <span class="text-primary">///</span> ARMORY
+                </h1>
+                <p class="text-text-secondary text-sm">Manage your gear and combat configuration</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center bg-bg-inner border border-border rounded-lg px-3 py-2 w-64 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+                    <i class="fa-solid fa-search text-text-muted mr-2"></i>
+                    <input type="text" placeholder="Search equipment..." class="bg-transparent border-none outline-none text-sm text-white w-full placeholder-text-muted">
+                </div>
+                <div class="flex items-center gap-2 bg-bg-inner border border-border rounded-lg p-1">
+                    <button class="px-3 py-1.5 rounded bg-border text-white text-xs font-bold hover:bg-border/80 transition">PvE</button>
+                    <button class="px-3 py-1.5 rounded text-text-muted hover:text-white text-xs font-medium transition">PvP</button>
+                    <button class="px-3 py-1.5 rounded text-text-muted hover:text-white text-xs font-medium transition">Raid</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+
+            <!-- Hero Stats Section -->
+            <section id="hero-stats" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Character Preview Card -->
+                <div class="lg:col-span-4 bg-bg-card border border-border rounded-[16px] overflow-hidden shadow-card relative group">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-legendary"></div>
+                    
+                    <!-- Background Image with Overlay -->
+                    <div class="h-64 relative">
+                        <img class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/1a9e33803a-ba527f21ff11f3c83fcf.png" alt="dark fantasy rogue character portrait detailed armor glowing eyes magical atmosphere cinematic lighting" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/50 to-transparent"></div>
+                        
+                        <div class="absolute bottom-4 left-6">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rarity-legendary/20 text-rarity-legendary border border-rarity-legendary/30">LEGENDARY</span>
+                                <span class="text-text-muted text-xs font-bold uppercase tracking-wider">Shadowblade</span>
+                            </div>
+                            <h2 class="text-3xl font-black text-white tracking-tight">KAEL'THAS</h2>
+                        </div>
+                    </div>
+
+                    <div class="p-6 pt-2">
+                        <div class="flex items-end justify-between mb-6">
+                            <div>
+                                <div class="text-text-muted text-xs uppercase font-bold mb-1">Combat Rating</div>
+                                <div class="text-[48px] leading-none font-black text-primary text-shadow-glow">4,285</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-text-muted text-xs uppercase font-bold mb-1">Level</div>
+                                <div class="text-2xl font-bold text-white">64</div>
+                            </div>
+                        </div>
+
+                        <!-- Main Stats -->
+                        <div class="space-y-4">
+                            <!-- HP -->
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span class="text-stat-vitality">VITALITY</span>
+                                    <span class="text-white">12,450 / 12,450</span>
+                                </div>
+                                <div class="h-2.5 bg-bg-inner rounded border border-border overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-stat-vitality to-primary hover:brightness-110 transition-all w-full shadow-[0_0_8px_rgba(0,255,136,0.4)]"></div>
+                                </div>
+                            </div>
+                            <!-- Spirit -->
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span class="text-stat-spirit">SPIRIT</span>
+                                    <span class="text-white">8,200 / 8,200</span>
+                                </div>
+                                <div class="h-2.5 bg-bg-inner rounded border border-border overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-stat-spirit to-purple-400 w-[75%] shadow-[0_0_8px_rgba(167,139,250,0.4)]"></div>
+                                </div>
+                            </div>
+                            <!-- Might -->
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span class="text-stat-might">MIGHT</span>
+                                    <span class="text-white">3,150</span>
+                                </div>
+                                <div class="h-2.5 bg-bg-inner rounded border border-border overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-stat-might to-red-400 w-[60%] shadow-[0_0_8px_rgba(255,107,107,0.4)]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-border flex gap-3">
+                            <button class="flex-1 bg-primary text-black font-bold py-3 rounded-lg shadow-[0_4px_12px_rgba(0,255,136,0.4)] hover:bg-primary-hover transition-colors">
+                                Edit Profile
+                            </button>
+                            <button class="px-4 py-3 rounded-lg border border-border text-white hover:border-primary hover:text-primary transition-colors">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Radar Chart & Attributes -->
+                <div class="lg:col-span-3 bg-bg-card border border-border rounded-[16px] p-6 shadow-card flex flex-col">
+                    <h3 class="text-lg font-bold text-white mb-6">Combat Analysis</h3>
+                    <div id="radarChart" class="flex-1 w-full h-64"></div> <!-- Plotly Chart Container -->
+                    
+                    <div class="mt-4 space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-bg-inner rounded-lg border border-border">
+                            <span class="text-xs font-bold text-text-muted uppercase">Crit Chance</span>
+                            <span class="font-bold text-rarity-legendary">42.5%</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-bg-inner rounded-lg border border-border">
+                            <span class="text-xs font-bold text-text-muted uppercase">Haste</span>
+                            <span class="font-bold text-stat-spirit">18.2%</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-bg-inner rounded-lg border border-border">
+                            <span class="text-xs font-bold text-text-muted uppercase">Lifesteal</span>
+                            <span class="font-bold text-stat-might">12.0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Effects / Buffs -->
+                <div class="lg:col-span-5 bg-bg-card border border-border rounded-[16px] p-6 shadow-card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-white">Active Set Bonuses</h3>
+                        <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">3 ACTIVE</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Set Bonus 1 -->
+                        <div class="flex gap-4 p-4 bg-bg-inner/50 border border-rarity-epic rounded-xl relative overflow-hidden group">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-rarity-epic shadow-[0_0_10px_rgba(157,78,221,0.6)]"></div>
+                            <div class="absolute inset-0 bg-rarity-epic/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <div class="w-12 h-12 rounded-lg bg-bg-inner border border-border flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-skull text-xl text-rarity-epic"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">Voidwalker's Embrace (4/5)</h4>
+                                <p class="text-xs text-text-secondary mt-1">Increases Shadow Damage by 15% and grants 5% lifesteal on critical hits.</p>
+                                <div class="mt-2 flex gap-1">
+                                    <div class="h-1.5 w-6 rounded-full bg-rarity-epic"></div>
+                                    <div class="h-1.5 w-6 rounded-full bg-rarity-epic"></div>
+                                    <div class="h-1.5 w-6 rounded-full bg-rarity-epic"></div>
+                                    <div class="h-1.5 w-6 rounded-full bg-rarity-epic"></div>
+                                    <div class="h-1.5 w-6 rounded-full bg-bg-inner border border-border"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Set Bonus 2 -->
+                        <div class="flex gap-4 p-4 bg-bg-inner/50 border border-rarity-rare rounded-xl relative overflow-hidden group">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-rarity-rare shadow-[0_0_10px_rgba(59,130,246,0.6)]"></div>
+                            <div class="absolute inset-0 bg-rarity-rare/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <div class="w-12 h-12 rounded-lg bg-bg-inner border border-border flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-wind text-xl text-rarity-rare"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">Swiftstep Legacy (2/2)</h4>
+                                <p class="text-xs text-text-secondary mt-1">+10% Movement Speed and Dodge Chance.</p>
+                                <div class="mt-2 flex gap-1">
+                                    <div class="h-1.5 w-6 rounded-full bg-rarity-rare"></div>
+                                    <div class="h-1.5 w-6 rounded-full bg-rarity-rare"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Equipment Loadout Grid -->
+            <section id="equipment-grid" class="bg-bg-card border border-border rounded-[16px] p-6 md:p-8 shadow-card">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                        <span class="text-2xl">🎒</span> Equipment Loadout
+                    </h2>
+                    <div class="flex gap-2">
+                        <button class="p-2 text-text-muted hover:text-white transition"><i class="fa-solid fa-list"></i></button>
+                        <button class="p-2 text-primary bg-bg-inner rounded border border-border"><i class="fa-solid fa-grid-2"></i></button>
+                    </div>
+                </div>
+
+                <!-- The Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    <!-- Slot 1: Weapon (Legendary) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-legendary rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-legendary transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-legendary opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-white/70 uppercase tracking-wider mb-1">MAIN HAND</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-legendary transition-colors">Soulreaper Scythe</div>
+                            </div>
+                            <div class="text-rarity-legendary text-xs font-bold border border-rarity-legendary/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 65</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-khanda text-rarity-legendary"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-might font-bold">+450 DMG</div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+120 VIT</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 2: Off-Hand (Epic) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-epic rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-epic transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-epic opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-white/70 uppercase tracking-wider mb-1">OFF HAND</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-epic transition-colors">Void Lantern</div>
+                            </div>
+                            <div class="text-rarity-epic text-xs font-bold border border-rarity-epic/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 62</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-lightbulb text-rarity-epic"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-spirit font-bold">+210 SPR</div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+80 VIT</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 3: Head (Epic) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-epic rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-epic transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-epic opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-white/70 uppercase tracking-wider mb-1">HEAD</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-epic transition-colors">Cowl of Shadows</div>
+                            </div>
+                            <div class="text-rarity-epic text-xs font-bold border border-rarity-epic/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 63</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-user-ninja text-rarity-epic"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+150 VIT</div>
+                                    <div class="text-[10px] text-text-secondary font-bold">+5% CRIT</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 4: Chest (Rare) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-rare rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-rare transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-rare opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1">CHEST</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-rare transition-colors">Midnight Tunic</div>
+                            </div>
+                            <div class="text-rarity-rare text-xs font-bold border border-rarity-rare/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 60</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-shirt text-rarity-rare"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+300 VIT</div>
+                                    <div class="text-[10px] text-text-secondary font-bold">+2% DODGE</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 5: Hands (Rare) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-rare rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-rare transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-rare opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1">HANDS</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-rare transition-colors">Swift Grips</div>
+                            </div>
+                            <div class="text-rarity-rare text-xs font-bold border border-rarity-rare/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 58</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-hand-fist text-rarity-rare"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-might font-bold">+85 DMG</div>
+                                    <div class="text-[10px] text-text-secondary font-bold">+8% HASTE</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 6: Legs (Epic) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-epic rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-epic transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-epic opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1">LEGS</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-epic transition-colors">Voidwalker Greaves</div>
+                            </div>
+                            <div class="text-rarity-epic text-xs font-bold border border-rarity-epic/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 64</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-socks text-rarity-epic"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+220 VIT</div>
+                                    <div class="text-[10px] text-stat-spirit font-bold">+45 SPR</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 7: Feet (Rare) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-rare rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-rare transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-rare opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1">FEET</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-rare transition-colors">Silent Treads</div>
+                            </div>
+                            <div class="text-rarity-rare text-xs font-bold border border-rarity-rare/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 60</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-shoe-prints text-rarity-rare"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-text-secondary font-bold">+12% SPEED</div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+90 VIT</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 8: Ring 1 (Legendary) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-legendary rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-legendary transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-legendary opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1">RING</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-legendary transition-colors">Band of Eternal Night</div>
+                            </div>
+                            <div class="text-rarity-legendary text-xs font-bold border border-rarity-legendary/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 65</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-ring text-rarity-legendary"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-stat-might font-bold">+120 DMG</div>
+                                    <div class="text-[10px] text-stat-spirit font-bold">+80 SPR</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Slot 9: Trinket (Uncommon) -->
+                    <div class="relative bg-bg-inner border-2 border-rarity-uncommon rounded-xl p-4 flex flex-col h-40 group hover:shadow-glow-primary transition-all duration-300">
+                        <div class="absolute inset-0 bg-tint-uncommon opacity-50"></div>
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <div class="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-1">TRINKET</div>
+                                <div class="text-sm font-bold text-white group-hover:text-rarity-uncommon transition-colors">Explorer's Compass</div>
+                            </div>
+                            <div class="text-rarity-uncommon text-xs font-bold border border-rarity-uncommon/30 px-1.5 py-0.5 rounded bg-black/40">Lvl 55</div>
+                        </div>
+                        
+                        <div class="relative z-10 mt-auto flex items-end justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded bg-black/50 border border-border flex items-center justify-center">
+                                    <i class="fa-solid fa-compass text-rarity-uncommon"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-text-secondary font-bold">+5% GOLD</div>
+                                    <div class="text-[10px] text-stat-vitality font-bold">+40 VIT</div>
+                                </div>
+                            </div>
+                            <button class="text-text-muted hover:text-white transition-transform hover:scale-110">
+                                <i class="fa-solid fa-repeat"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Inventory & Quick Actions -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recent Drops / Inventory Mini -->
+                <div class="bg-bg-card border border-border rounded-[16px] p-6 shadow-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-white">Recent Drops</h3>
+                        <a href="#" class="text-primary text-xs font-bold hover:underline">VIEW ALL</a>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-3 bg-bg-inner rounded-lg border border-border hover:border-text-muted transition cursor-pointer">
+                            <div class="w-10 h-10 rounded bg-rarity-common/20 border border-rarity-common text-rarity-common flex items-center justify-center">
+                                <i class="fa-solid fa-scroll"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-bold text-white">Ancient Scroll</div>
+                                <div class="text-xs text-text-muted">Crafting Material</div>
+                            </div>
+                            <span class="text-xs font-bold text-rarity-common">Common</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-3 bg-bg-inner rounded-lg border border-border hover:border-rarity-rare transition cursor-pointer">
+                            <div class="w-10 h-10 rounded bg-rarity-rare/20 border border-rarity-rare text-rarity-rare flex items-center justify-center">
+                                <i class="fa-solid fa-gem"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-bold text-white">Sapphire Shard</div>
+                                <div class="text-xs text-text-muted">Upgrade Material</div>
+                            </div>
+                            <span class="text-xs font-bold text-rarity-rare">Rare</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-3 bg-bg-inner rounded-lg border border-border hover:border-rarity-epic transition cursor-pointer">
+                            <div class="w-10 h-10 rounded bg-rarity-epic/20 border border-rarity-epic text-rarity-epic flex items-center justify-center">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-bold text-white">Elixir of Void</div>
+                                <div class="text-xs text-text-muted">Consumable</div>
+                            </div>
+                            <span class="text-xs font-bold text-rarity-epic">Epic</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats / Currency -->
+                <div class="bg-bg-card border border-border rounded-[16px] p-6 shadow-card flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">Resources</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-bg-inner p-4 rounded-xl border border-border">
+                                <div class="text-xs text-text-muted font-bold uppercase mb-1">Gold</div>
+                                <div class="text-xl font-bold text-rarity-legendary flex items-center gap-2">
+                                    <i class="fa-solid fa-coins"></i> 45,200
+                                </div>
+                            </div>
+                            <div class="bg-bg-inner p-4 rounded-xl border border-border">
+                                <div class="text-xs text-text-muted font-bold uppercase mb-1">Shards</div>
+                                <div class="text-xl font-bold text-primary flex items-center gap-2">
+                                    <i class="fa-solid fa-diamond"></i> 850
+                                </div>
+                            </div>
+                            <div class="bg-bg-inner p-4 rounded-xl border border-border">
+                                <div class="text-xs text-text-muted font-bold uppercase mb-1">Essence</div>
+                                <div class="text-xl font-bold text-rarity-epic flex items-center gap-2">
+                                    <i class="fa-solid fa-droplet"></i> 124
+                                </div>
+                            </div>
+                            <div class="bg-bg-inner p-4 rounded-xl border border-border">
+                                <div class="text-xs text-text-muted font-bold uppercase mb-1">Tokens</div>
+                                <div class="text-xl font-bold text-text-secondary flex items-center gap-2">
+                                    <i class="fa-solid fa-ticket"></i> 12
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-6 bg-transparent border border-primary text-primary font-bold py-3 rounded-lg hover:bg-primary/10 transition-colors">
+                        Open Marketplace
+                    </button>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-bg-card border-t border-border mt-12 py-12 px-6">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-6 h-6 rounded bg-primary flex items-center justify-center text-black font-bold text-xs">F</div>
+                        <span class="font-bold text-white">FREEDOM WORLD</span>
+                    </div>
+                    <p class="text-text-muted text-sm">The ultimate card battle RPG experience. Join the fight for the Scape.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Game</h4>
+                    <ul class="space-y-2 text-sm text-text-secondary">
+                        <li><a href="#" class="hover:text-primary transition">Patch Notes</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Leaderboards</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Guide</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Community</h4>
+                    <ul class="space-y-2 text-sm text-text-secondary">
+                        <li><a href="#" class="hover:text-primary transition">Discord</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Reddit</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Forums</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-text-secondary">
+                        <li><a href="#" class="hover:text-primary transition">Help Center</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Report Bug</a></li>
+                        <li><a href="#" class="hover:text-primary transition">Status</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-border text-center text-xs text-text-muted">
+                &copy; 2024 Freedom World Games. All rights reserved.
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Chart Script -->
+    <script>
+        window.addEventListener('load', function() {
+            try {
+                var data = [{
+                    type: 'scatterpolar',
+                    r: [80, 65, 90, 70, 85, 80],
+                    theta: ['DMG', 'VIT', 'SPR', 'DEF', 'SPD', 'CRIT'],
+                    fill: 'toself',
+                    fillcolor: 'rgba(139, 92, 246, 0.25)',
+                    line: {
+                        color: '#8B5CF6',
+                        width: 2
+                    },
+                    marker: {
+                        color: '#8B5CF6',
+                        size: 4
+                    }
+                }];
+
+                var layout = {
+                    polar: {
+                        radialaxis: {
+                            visible: true,
+                            range: [0, 100],
+                            showticklabels: false,
+                            ticks: '',
+                            linecolor: 'rgba(255,255,255,0.1)',
+                            gridcolor: 'rgba(255,255,255,0.1)'
+                        },
+                        angularaxis: {
+                            tickfont: {
+                                size: 10,
+                                color: '#7A8A99',
+                                family: 'Inter'
+                            },
+                            linecolor: 'rgba(255,255,255,0.1)',
+                            gridcolor: 'rgba(255,255,255,0.1)'
+                        },
+                        bgcolor: 'rgba(0,0,0,0)'
+                    },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    showlegend: false,
+                    margin: { t: 20, r: 30, b: 20, l: 30 },
+                    height: 250,
+                    autosize: true
+                };
+
+                var config = {responsive: true, displayModeBar: false};
+
+                Plotly.newPlot('radarChart', data, layout, config);
+            } catch(e) {
+                console.error("Chart error:", e);
+            }
+        });
+
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const sidebar = document.querySelector('aside');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('inset-0');
+            sidebar.classList.toggle('z-50');
+            sidebar.classList.toggle('w-full');
+        });
+    </script>
+</body>
+</html>

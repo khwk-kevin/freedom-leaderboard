@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materials & NFTs | Freedom World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        page: '#0A0E10',
+                        card: '#0D1215',
+                        inner: '#1A1A1A',
+                        border: '#1E2529',
+                        borderHover: '#2A2A2A',
+                        primary: '#00FF88',
+                        primaryHover: '#00FFB8',
+                        spirit: '#A78BFA',
+                        might: '#FF6B6B',
+                        gold: '#FFD700',
+                        goldDark: '#FFA500',
+                        common: '#7A8A99',
+                        rare: '#3B82F6',
+                        epic: '#9D4EDD',
+                        legendary: '#FFD700',
+                        textMain: '#FFFFFF',
+                        textSec: '#B8C5D0',
+                        textMuted: '#7A8A99'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0px 4px 12px rgba(0, 0, 0, 0.4)',
+                        'glow-primary': '0px 0px 16px rgba(0, 255, 136, 0.3)',
+                        'glow-legendary': '0px 0px 20px rgba(255, 215, 0, 0.4)',
+                        'glow-epic': '0px 0px 16px rgba(157, 78, 221, 0.3)',
+                    },
+                    backgroundImage: {
+                        'gradient-gold': 'linear-gradient(to right, #FFD700, #FFA500)',
+                        'gradient-hp': 'linear-gradient(to right, #00FF88, #00FFB8)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0A0E10; color: #FFFFFF; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0A0E10; }
+        ::-webkit-scrollbar-thumb { background: #1E2529; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2A2A2A; }
+        .text-shadow-glow { text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.3); }
+        .text-shadow-gold { text-shadow: 0px 0px 12px rgba(255, 215, 0, 0.6); }
+        .text-shadow-green { text-shadow: 0px 0px 8px rgba(0, 255, 136, 0.6); }
+        .clip-path-hex { clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+    <!-- Mobile Navigation Overlay (Hidden by default) -->
+    <div id="mobile-nav" class="fixed inset-0 bg-page z-50 transform translate-x-full transition-transform duration-300 md:hidden flex flex-col">
+        <div class="p-6 flex justify-between items-center border-b border-border">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-black font-bold text-lg">F</div>
+                <span class="font-bold text-xl tracking-wide">FREEDOM</span>
+            </div>
+            <button onclick="document.getElementById('mobile-nav').classList.add('translate-x-full')" class="text-textSec hover:text-white">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <nav class="space-y-4">
+                <a href="#" class="block text-textSec hover:text-white text-lg font-medium">Dashboard</a>
+                <a href="#" class="block text-primary text-lg font-bold">Inventory</a>
+                <a href="#" class="block text-textSec hover:text-white text-lg font-medium">The Scape</a>
+                <a href="#" class="block text-textSec hover:text-white text-lg font-medium">Marketplace</a>
+                <a href="#" class="block text-textSec hover:text-white text-lg font-medium">Guilds</a>
+            </nav>
+            <div class="border-t border-border pt-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" alt="User" class="w-12 h-12 rounded-full border-2 border-gold object-cover">
+                        <div class="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5 border border-border">
+                            <div class="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white">Cmdr. Vrax</div>
+                        <div class="text-xs text-gold">Lvl 42 Legend</div>
+                    </div>
+                </div>
+                <button class="w-full py-3 rounded-lg border border-border text-textMuted hover:text-white hover:border-white transition-colors">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-border bg-card shrink-0 z-40">
+        <div class="p-6 border-b border-border flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-black font-bold text-lg shadow-[0_0_10px_rgba(0,255,136,0.4)]">F</div>
+            <span class="font-bold text-xl tracking-wide text-white">FREEDOM</span>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <div class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2 px-2">Main</div>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                <i class="fa-solid fa-layer-group w-5 text-center group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-inner text-white shadow-inner border border-border transition-all group relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                <i class="fa-solid fa-box-open w-5 text-center text-primary"></i>
+                <span class="font-bold">Materials & NFTs</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                <i class="fa-solid fa-gamepad w-5 text-center group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">The Scape</span>
+                <span class="ml-auto text-[10px] bg-primary text-black font-bold px-1.5 py-0.5 rounded">LIVE</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                <i class="fa-solid fa-shop w-5 text-center group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Marketplace</span>
+            </a>
+
+            <div class="mt-8 text-xs font-bold text-textMuted uppercase tracking-wider mb-2 px-2">Community</div>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                <i class="fa-solid fa-users w-5 text-center group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Guilds</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                <i class="fa-solid fa-trophy w-5 text-center group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Leaderboard</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-border">
+            <div class="bg-inner rounded-xl p-4 border border-border relative overflow-hidden group hover:border-primary/30 transition-colors cursor-pointer">
+                <div class="absolute top-0 right-0 p-2 opacity-50">
+                    <i class="fa-solid fa-bolt text-gold"></i>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-10 h-10 rounded-full border-2 border-gold object-cover shadow-[0_0_10px_rgba(255,215,0,0.3)]">
+                    <div>
+                        <div class="text-sm font-bold text-white">Cmdr. Vrax</div>
+                        <div class="text-xs text-gold">Power: 9,240</div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-[10px] uppercase font-bold text-textMuted">
+                        <span>XP Progress</span>
+                        <span class="text-primary">84%</span>
+                    </div>
+                    <div class="h-1.5 bg-black rounded-full overflow-hidden border border-white/10">
+                        <div class="h-full bg-gradient-to-r from-primary to-emerald-400 w-[84%] shadow-[0_0_8px_rgba(0,255,136,0.5)]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-h-screen relative overflow-hidden">
+        <!-- Background Effects -->
+        <div class="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none z-0"></div>
+        <div class="absolute top-[-200px] right-[-200px] w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+
+        <!-- Header -->
+        <header class="h-20 border-b border-border bg-page/80 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between px-6 lg:px-8">
+            <div class="md:hidden flex items-center gap-3">
+                <button onclick="document.getElementById('mobile-nav').classList.remove('translate-x-full')" class="text-textSec hover:text-white">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div class="w-6 h-6 rounded bg-primary flex items-center justify-center text-black font-bold text-xs">F</div>
+            </div>
+
+            <div class="hidden md:flex items-center gap-4 flex-1 max-w-xl">
+                <div class="relative w-full group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-search text-textMuted group-focus-within:text-primary transition-colors"></i>
+                    </div>
+                    <input type="text" class="block w-full pl-10 pr-3 py-2.5 border border-border rounded-lg leading-5 bg-inner text-white placeholder-textMuted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all sm:text-sm" placeholder="Search materials, NFTs, or cards...">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 lg:gap-6">
+                <!-- Resources -->
+                <div class="hidden sm:flex items-center gap-4 bg-inner/50 rounded-lg px-4 py-2 border border-white/5">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-coins text-gold text-sm drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]"></i>
+                        <span class="text-sm font-bold text-white">42,500</span>
+                    </div>
+                    <div class="w-px h-4 bg-border"></div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-gem text-primary text-sm drop-shadow-[0_0_5px_rgba(0,255,136,0.5)]"></i>
+                        <span class="text-sm font-bold text-white">1,250</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button class="relative p-2 text-textSec hover:text-white transition-colors">
+                        <i class="fa-solid fa-bell text-lg"></i>
+                        <span class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-might ring-2 ring-card animate-pulse"></span>
+                    </button>
+                    <button class="md:hidden">
+                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-8 h-8 rounded-full border border-gold">
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="flex-1 p-4 md:p-6 lg:p-8 z-10 overflow-y-auto">
+            
+            <!-- Hero / Stats Section -->
+            <section class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group hover:border-primary/30 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-primary/20 transition-all"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2.5 bg-inner rounded-lg border border-border">
+                            <i class="fa-solid fa-cubes text-primary text-xl"></i>
+                        </div>
+                        <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">+12%</span>
+                    </div>
+                    <h3 class="text-textMuted text-sm font-semibold mb-1">Total Materials</h3>
+                    <div class="text-3xl font-black text-white tracking-tight">8,429</div>
+                </div>
+
+                <div class="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group hover-border-gold/30 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gold/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-gold/20 transition-all"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2.5 bg-inner rounded-lg border border-border">
+                            <i class="fa-solid fa-fingerprint text-gold text-xl"></i>
+                        </div>
+                        <span class="text-xs font-bold text-gold bg-gold/10 px-2 py-1 rounded border border-gold/20">New</span>
+                    </div>
+                    <h3 class="text-textMuted text-sm font-semibold mb-1">NFT Collection</h3>
+                    <div class="text-3xl font-black text-white tracking-tight">42</div>
+                </div>
+
+                <div class="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group hover-border-spirit/30 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-spirit/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-spirit/20 transition-all"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2.5 bg-inner rounded-lg border border-border">
+                            <i class="fa-solid fa-flask text-spirit text-xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-textMuted text-sm font-semibold mb-1">Crafting Power</h3>
+                    <div class="text-3xl font-black text-white tracking-tight">2,150</div>
+                </div>
+
+                <div class="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group hover-border-might/30 transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-might/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-might/20 transition-all"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-2.5 bg-inner rounded-lg border border-border">
+                            <i class="fa-solid fa-fire text-might text-xl"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-textMuted text-sm font-semibold mb-1">Battle Potential</h3>
+                    <div class="text-3xl font-black text-white tracking-tight">98.5%</div>
+                </div>
+            </section>
+
+            <!-- Materials Grid Section -->
+            <section class="mb-10 animate-fade-in-up">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            Materials & NFTs <span class="text-xl">💎</span>
+                        </h2>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-4 py-2 bg-inner border border-border rounded-lg text-sm font-medium text-textSec hover:text-white hover:border-white transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-filter text-xs"></i> Filter
+                        </button>
+                        <button class="px-4 py-2 bg-primary text-black border border-primary rounded-lg text-sm font-bold hover:bg-primaryHover hover:border-primaryHover transition-all shadow-[0_4px_12px_rgba(0,255,136,0.3)]">
+                            <i class="fa-solid fa-hammer mr-1"></i> Craft
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-card border border-border rounded-[16px] p-6 shadow-card">
+                    <!-- Materials Grid: Fixed to 4 columns max for desktop (lg:grid-cols-4) -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                        
+                        <!-- Material Card 1: Plasma Flux -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-bolt-lightning text-3xl text-primary relative z-10 drop-shadow-[0_0_8px_rgba(0,255,136,0.6)]"></i>
+                            </div>
+                            <div class="text-primary font-bold text-lg">2,450</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Plasma Flux</div>
+                        </div>
+
+                        <!-- Material Card 2: Quanticore -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-atom text-3xl text-spirit relative z-10 drop-shadow-[0_0_8px_rgba(167,139,250,0.6)]"></i>
+                            </div>
+                            <div class="text-spirit font-bold text-lg">12</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Quanticore</div>
+                        </div>
+
+                        <!-- Material Card 3: Blastite -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-burst text-3xl text-might relative z-10 drop-shadow-[0_0_8px_rgba(255,107,107,0.6)]"></i>
+                            </div>
+                            <div class="text-might font-bold text-lg">95</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Blastite</div>
+                        </div>
+
+                        <!-- Material Card 4: Voidstone -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-circle-nodes text-3xl text-textSec relative z-10"></i>
+                            </div>
+                            <div class="text-white font-bold text-lg">850</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Voidstone</div>
+                        </div>
+
+                        <!-- Material Card 5: Adamantite -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-cube text-3xl text-primary relative z-10"></i>
+                            </div>
+                            <div class="text-primary font-bold text-lg">420</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Adamantite</div>
+                        </div>
+
+                        <!-- Material Card 6: Freedom Dust -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-wind text-3xl text-spirit relative z-10"></i>
+                            </div>
+                            <div class="text-spirit font-bold text-lg">1,240</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Freedom Dust</div>
+                        </div>
+
+                        <!-- Material Card 7: Neuroform -->
+                        <div class="bg-inner border border-border rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 hover:border-borderHover transition-colors group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative">
+                                <i class="fa-solid fa-dna text-3xl text-might relative z-10"></i>
+                            </div>
+                            <div class="text-might font-bold text-lg">33</div>
+                            <div class="text-[11px] font-medium text-textMuted uppercase tracking-wide">Neuroform</div>
+                        </div>
+
+                        <!-- Special NFT Card -->
+                        <div class="bg-[rgba(255,215,0,0.05)] border border-[rgba(255,215,0,0.3)] rounded-xl p-3 flex flex-col items-center justify-center text-center gap-2 shadow-[0_0_16px_rgba(255,215,0,0.15)] group cursor-pointer relative overflow-hidden">
+                            <div class="w-12 h-12 mb-1 relative flex items-center justify-center">
+                                <i class="fa-solid fa-crown text-3xl text-gold relative z-10 drop-shadow-[0_0_8px_rgba(255,215,0,0.8)]"></i>
+                            </div>
+                            <div class="text-gold font-bold text-lg text-shadow-gold">3</div>
+                            <div class="text-[11px] font-bold text-gold/80 uppercase tracking-wide">Leg. Artifacts</div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- NFT Collection Section -->
+            <section class="mb-10">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-white">Your Collection</h2>
+                    <div class="flex gap-2 text-sm">
+                        <button class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 font-bold">All</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-inner text-textMuted border border-transparent hover:text-white hover:bg-inner/80 transition-colors">Characters</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-inner text-textMuted border border-transparent hover:text-white hover:bg-inner/80 transition-colors">Weapons</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    
+                    <!-- Legendary Card -->
+                    <div class="bg-card rounded-2xl border-2 border-gold/50 p-1 relative group overflow-hidden shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="absolute inset-0 bg-gradient-to-b from-gold/10 to-transparent pointer-events-none"></div>
+                        
+                        <!-- Card Image Area -->
+                        <div class="bg-inner rounded-xl h-48 mb-3 overflow-hidden relative">
+                            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/image-inspirations%2Fc9939a236537011-cdfc010b-16ef-4fe2-90fb-021d4497bfaa.jpg" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded border border-gold/30 text-[10px] font-bold text-gold uppercase tracking-wider">
+                                <i class="fa-solid fa-star mr-1"></i> Legendary
+                            </div>
+                            <div class="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-black to-transparent"></div>
+                        </div>
+
+                        <div class="px-3 pb-3">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="text-white font-bold text-lg leading-tight">Void Reaver</h3>
+                                    <p class="text-xs text-textMuted">Shadow Assassin Class</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-black border border-gold/30 flex items-center justify-center text-gold font-bold text-xs shadow-lg">
+                                    Lvl 9
+                                </div>
+                            </div>
+
+                            <!-- Stats Row -->
+                            <div class="grid grid-cols-3 gap-2 mb-3">
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">MGT</div>
+                                    <div class="text-might font-bold text-sm">240</div>
+                                </div>
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">VIT</div>
+                                    <div class="text-primary font-bold text-sm">180</div>
+                                </div>
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">SPT</div>
+                                    <div class="text-spirit font-bold text-sm">95</div>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-2 bg-gold text-black font-bold text-sm rounded-lg hover:bg-yellow-400 transition-colors shadow-[0_2px_8px_rgba(255,215,0,0.3)]">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Epic Card -->
+                    <div class="bg-card rounded-2xl border border-epic p-1 relative group overflow-hidden shadow-[0_0_16px_rgba(157,78,221,0.2)] hover:shadow-[0_0_24px_rgba(157,78,221,0.3)] transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="absolute inset-0 bg-gradient-to-b from-epic/10 to-transparent pointer-events-none"></div>
+                        
+                        <div class="bg-inner rounded-xl h-48 mb-3 overflow-hidden relative">
+                             <div class="w-full h-full bg-inner flex items-center justify-center relative">
+                                <i class="fa-solid fa-khanda text-6xl text-epic opacity-50"></i>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                            </div>
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded border border-epic/30 text-[10px] font-bold text-epic uppercase tracking-wider">
+                                <i class="fa-solid fa-gem mr-1"></i> Epic
+                            </div>
+                        </div>
+
+                        <div class="px-3 pb-3">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="text-white font-bold text-lg leading-tight">Soul Binder</h3>
+                                    <p class="text-xs text-textMuted">Support Artifact</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-black border border-epic/30 flex items-center justify-center text-epic font-bold text-xs shadow-lg">
+                                    +4
+                                </div>
+                            </div>
+
+                            <!-- Stats Row -->
+                            <div class="grid grid-cols-3 gap-2 mb-3">
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">HEAL</div>
+                                    <div class="text-primary font-bold text-sm">+12%</div>
+                                </div>
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">MANA</div>
+                                    <div class="text-spirit font-bold text-sm">450</div>
+                                </div>
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">CD</div>
+                                    <div class="text-white font-bold text-sm">-2s</div>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-2 bg-transparent border border-epic text-epic font-bold text-sm rounded-lg hover:bg-epic hover:text-white transition-all">
+                                Equip
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Rare Card -->
+                    <div class="bg-card rounded-2xl border border-rare p-1 relative group overflow-hidden shadow-[0_0_12px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="absolute inset-0 bg-gradient-to-b from-rare/5 to-transparent pointer-events-none"></div>
+                        
+                        <div class="bg-inner rounded-xl h-48 mb-3 overflow-hidden relative">
+                            <div class="w-full h-full bg-inner flex items-center justify-center relative">
+                                <i class="fa-solid fa-shield-cat text-6xl text-rare opacity-50"></i>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                            </div>
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded border border-rare/30 text-[10px] font-bold text-rare uppercase tracking-wider">
+                                <i class="fa-solid fa-diamond mr-1"></i> Rare
+                            </div>
+                        </div>
+
+                        <div class="px-3 pb-3">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="text-white font-bold text-lg leading-tight">Cobalt Guard</h3>
+                                    <p class="text-xs text-textMuted">Defensive Unit</p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-black border border-rare/30 flex items-center justify-center text-rare font-bold text-xs shadow-lg">
+                                    Lvl 5
+                                </div>
+                            </div>
+
+                            <!-- Stats Row -->
+                            <div class="grid grid-cols-3 gap-2 mb-3">
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">DEF</div>
+                                    <div class="text-white font-bold text-sm">850</div>
+                                </div>
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">HP</div>
+                                    <div class="text-primary font-bold text-sm">1.2k</div>
+                                </div>
+                                <div class="bg-black/40 rounded p-1.5 text-center border border-white/5">
+                                    <div class="text-[10px] text-textMuted uppercase font-bold">RGN</div>
+                                    <div class="text-white font-bold text-sm">15/s</div>
+                                </div>
+                            </div>
+
+                            <button class="w-full py-2 bg-transparent border border-rare text-rare font-bold text-sm rounded-lg hover:bg-rare hover:text-white transition-all">
+                                Inspect
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Common Card (Add Item) -->
+                    <div class="bg-card rounded-2xl border border-dashed border-border p-6 flex flex-col items-center justify-center text-center gap-4 group hover:border-primary transition-colors h-full min-h-[300px] cursor-pointer">
+                        <div class="w-16 h-16 rounded-full bg-inner border border-border flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/50 transition-all">
+                            <i class="fa-solid fa-plus text-2xl text-textMuted group-hover:text-primary transition-colors"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold text-lg">Find More Loot</h3>
+                            <p class="text-sm text-textMuted mt-1">Explore The Scape to find rare materials and NFTs.</p>
+                        </div>
+                        <button class="px-6 py-2 bg-inner rounded-lg text-sm font-bold text-white border border-border group-hover:border-primary group-hover:text-primary transition-all">
+                            Go to Map
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Recent Activity Table -->
+            <section class="mb-10">
+                <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
+                    <div class="p-6 border-b border-border flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-white">Recent Acquisitions</h2>
+                        <a href="#" class="text-sm text-primary hover:text-primaryHover font-medium">View All History</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-inner/50 text-xs font-bold text-textMuted uppercase tracking-wider">
+                                    <th class="px-6 py-4">Item Name</th>
+                                    <th class="px-6 py-4">Type</th>
+                                    <th class="px-6 py-4">Rarity</th>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4 text-right">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                <tr class="hover:bg-inner/30 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded bg-inner border border-border flex items-center justify-center text-primary">
+                                                <i class="fa-solid fa-cube"></i>
+                                            </div>
+                                            <span class="font-medium text-white">Adamantite x5</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-textSec">Material</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-rare/10 text-rare border border-rare/20">Rare</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-textMuted">2 mins ago</td>
+                                    <td class="px-6 py-4 text-right font-bold text-gold">450 G</td>
+                                </tr>
+                                <tr class="hover:bg-inner/30 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded bg-inner border border-border flex items-center justify-center text-epic">
+                                                <i class="fa-solid fa-scroll"></i>
+                                            </div>
+                                            <span class="font-medium text-white">Ancient Scroll</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-textSec">Consumable</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-epic/10 text-epic border border-epic/20">Epic</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-textMuted">1 hour ago</td>
+                                    <td class="px-6 py-4 text-right font-bold text-gold">1,200 G</td>
+                                </tr>
+                                <tr class="hover:bg-inner/30 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded bg-inner border border-border flex items-center justify-center text-common">
+                                                <i class="fa-solid fa-wind"></i>
+                                            </div>
+                                            <span class="font-medium text-white">Freedom Dust x20</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-textSec">Material</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-common/10 text-common border border-common/20">Common</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-textMuted">3 hours ago</td>
+                                    <td class="px-6 py-4 text-right font-bold text-gold">40 G</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="border-t border-border bg-card py-8 px-6 lg:px-8 mt-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-textMuted text-sm">
+                    &copy; 2024 Freedom World. All rights reserved. The Scape® is a registered trademark.
+                </div>
+                <div class="flex gap-6">
+                    <a href="#" class="text-textMuted hover:text-white transition-colors"><i class="fa-brands fa-discord text-xl"></i></a>
+                    <a href="#" class="text-textMuted hover:text-white transition-colors"><i class="fa-brands fa-twitter text-xl"></i></a>
+                    <a href="#" class="text-textMuted hover:text-white transition-colors"><i class="fa-brands fa-telegram text-xl"></i></a>
+                    <a href="#" class="text-textMuted hover:text-white transition-colors"><i class="fa-brands fa-github text-xl"></i></a>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Interactive Scripts for Charts/Behavior -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script>
+        // Simple Chart Setup (Example if needed, though current design is grid focused)
+        // No chart required by query but good to have prepared structure if needed.
+    </script>
+</body>
+</html>

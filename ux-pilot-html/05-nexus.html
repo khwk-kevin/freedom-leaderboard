@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Performance - Freedom World RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        page: '#0A0E10',
+                        card: '#0D1215',
+                        inner: '#1A1A1A',
+                        border: '#1E2529',
+                        borderHover: '#2A2A2A',
+                        primary: '#00FF88',
+                        primaryHover: '#00FFB8',
+                        nexus: '#9D4EDD',
+                        nexusGlow: 'rgba(157, 78, 221, 0.5)',
+                        might: '#FF6B6B',
+                        spirit: '#A78BFA',
+                        gold: '#FFD700',
+                        textMain: '#FFFFFF',
+                        textSec: '#CBD5E1',
+                        textMuted: '#94A3B8',
+                        rarityCommon: '#94A3B8',
+                        rarityRare: '#3B82F6',
+                        rarityLegendary: '#FFD700',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0px 4px 12px rgba(0, 0, 0, 0.4)',
+                        'glow-primary': '0px 0px 12px rgba(0, 255, 136, 0.4)',
+                        'glow-nexus': '0px 0px 16px rgba(157, 78, 221, 0.3)',
+                        'glow-legendary': '0px 0px 20px rgba(255, 215, 0, 0.4)',
+                    },
+                    backgroundImage: {
+                        'gradient-nexus': 'radial-gradient(circle at center, rgba(157, 78, 221, 0.08) 0%, rgba(13, 18, 21, 0) 70%)',
+                        'gradient-gold': 'linear-gradient(to right, #FFD700, #FFA500)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0A0E10;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0D1215; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+            border: 2px solid #0D1215;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        
+        /* Custom Utilities */
+        .text-shadow-glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+        .text-shadow-nexus {
+            text-shadow: 0 0 12px rgba(157, 78, 221, 0.6);
+        }
+        .text-shadow-primary {
+            text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+        }
+        
+        /* Nexus Progress Bar Animation */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 8px rgba(157, 78, 221, 0.4); }
+            50% { box-shadow: 0 0 16px rgba(157, 78, 221, 0.7); }
+        }
+        .nexus-bar-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        /* Sidebar transition */
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- Mobile Header -->
+    <header class="md:hidden fixed top-0 w-full z-50 bg-card/95 backdrop-blur-md border-b border-border h-16 flex items-center justify-between px-4">
+        <div class="flex items-center gap-3">
+            <button id="mobile-menu-btn" class="text-textSec hover:text-white transition-colors">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-black font-bold">
+                    <i class="fa-solid fa-dragon"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">FREEDOM</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <div class="w-8 h-8 rounded-full p-[2px] bg-gradient-gold">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-full h-full rounded-full object-cover border-2 border-card" alt="Profile">
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-black rounded-full flex items-center justify-center border border-border">
+                    <span class="text-[8px] font-bold text-gold">99</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border transform -translate-x-full md:translate-x-0 sidebar-transition flex flex-col pt-16 md:pt-0">
+        <div class="h-20 flex items-center px-6 border-b border-border hidden md:flex">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-black font-bold shadow-glow-primary mr-3">
+                <i class="fa-solid fa-dragon text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl tracking-tight text-white">FREEDOM</h1>
+                <p class="text-xs text-primary font-medium tracking-wider">WORLD RPG</p>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-6 px-4 space-y-8">
+            <!-- Main Nav -->
+            <div>
+                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-3 px-2">Main Menu</h3>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                        <i class="fa-solid fa-house w-5 text-center group-hover:text-primary transition-colors"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-inner border border-border text-white shadow-sm group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <i class="fa-solid fa-user-astronaut w-5 text-center text-primary"></i>
+                        <span class="font-medium">Character Profile</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                        <i class="fa-solid fa-dumbbell w-5 text-center group-hover:text-might transition-colors"></i>
+                        <span class="font-medium">Training Grounds</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                        <i class="fa-solid fa-dungeon w-5 text-center group-hover:text-nexus transition-colors"></i>
+                        <span class="font-medium">Dungeons</span>
+                        <span class="ml-auto text-[10px] font-bold bg-nexus/20 text-nexus px-1.5 py-0.5 rounded border border-nexus/30">NEW</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Social / Guild -->
+            <div>
+                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-3 px-2">Social</h3>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                        <i class="fa-solid fa-users w-5 text-center group-hover:text-gold transition-colors"></i>
+                        <span class="font-medium">Guild Hall</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                        <i class="fa-solid fa-trophy w-5 text-center group-hover:text-gold transition-colors"></i>
+                        <span class="font-medium">Leaderboards</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- System -->
+            <div>
+                <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-3 px-2">System</h3>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-textSec hover:bg-inner hover:text-white transition-all group">
+                        <i class="fa-solid fa-gear w-5 text-center"></i>
+                        <span class="font-medium">Settings</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- User Mini Profile -->
+        <div class="p-4 border-t border-border bg-black/20">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-gold shadow-glow-legendary">
+                        <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-full h-full rounded-full object-cover border-2 border-card" alt="User">
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 bg-card rounded-full p-0.5">
+                        <div class="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">ShadowBlade</p>
+                    <p class="text-xs text-gold truncate">Lvl 99 • Legendary</p>
+                </div>
+                <button class="text-textMuted hover:text-white transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/80 z-30 hidden md:hidden backdrop-blur-sm"></div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 md:ml-64 pt-16 md:pt-0 min-h-screen flex flex-col">
+        
+        <!-- Top Bar (Desktop) -->
+        <div class="hidden md:flex h-20 items-center justify-between px-8 border-b border-border bg-page/95 backdrop-blur sticky top-0 z-20">
+            <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                <span class="text-textMuted font-normal">Profile /</span> Nexus Stats
+            </h2>
+            <div class="flex items-center gap-6">
+                <!-- Search -->
+                <div class="relative w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-sm"></i>
+                    <input type="text" placeholder="Search stats, items..." class="w-full bg-inner border border-border rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder-textMuted">
+                </div>
+                
+                <!-- Resources -->
+                <div class="flex items-center gap-4 bg-inner px-4 py-2 rounded-lg border border-border">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-coins text-gold"></i>
+                        <span class="font-bold text-sm">14,250</span>
+                    </div>
+                    <div class="w-px h-4 bg-border"></div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-gem text-nexus"></i>
+                        <span class="font-bold text-sm">850</span>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <button class="relative w-10 h-10 flex items-center justify-center rounded-lg border border-border hover:bg-inner text-textSec hover:text-white transition-colors">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="absolute top-2 right-2.5 w-2 h-2 bg-might rounded-full border border-card"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Container -->
+        <div class="p-4 md:p-8 space-y-8 max-w-7xl mx-auto w-full">
+            
+            <!-- Hero / Profile Header -->
+            <section id="hero" class="relative rounded-2xl overflow-hidden border border-border bg-card shadow-card group">
+                <!-- Background Image with Gradient Overlay -->
+                <div class="absolute inset-0 z-0">
+                    <div class="absolute inset-0 bg-gradient-to-r from-page via-page/90 to-transparent z-10"></div>
+                    <img class="w-full h-full object-cover opacity-40 mix-blend-luminosity group-hover:scale-105 transition-transform duration-700" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/810df774e4-62dcd558566da35a5934.png" alt="dark fantasy rpg dungeon background mysterious glowing ruins purple lighting" />
+                </div>
+                
+                <div class="relative z-10 p-6 md:p-10 flex flex-col md:flex-row items-center md:items-end gap-8">
+                    <!-- Avatar Large -->
+                    <div class="relative flex-shrink-0">
+                        <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl p-[3px] bg-gradient-gold shadow-[0_0_30px_rgba(255,215,0,0.3)]">
+                            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-full h-full rounded-[13px] object-cover bg-inner" alt="Hero">
+                        </div>
+                        <div class="absolute -bottom-3 -right-3 w-12 h-12 bg-inner rounded-xl border border-border flex items-center justify-center shadow-lg">
+                            <i class="fa-solid fa-crown text-gold text-xl drop-shadow-[0_0_5px_rgba(255,215,0,0.8)]"></i>
+                        </div>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 text-center md:text-left space-y-2">
+                        <div class="flex items-center justify-center md:justify-start gap-3 mb-1">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gold/10 text-gold border border-gold/30 tracking-wider">LEGENDARY</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-nexus/10 text-nexus border border-nexus/30 tracking-wider">NEXUS WALKER</span>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">ShadowBlade</h1>
+                        <p class="text-textSec max-w-xl text-sm md:text-base">Elite Shadowstalker specializing in high-crit burst damage and evasion. Currently ranked #42 in the Global Nexus Leaderboards.</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4 pt-2">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-primary"></i>
+                                <span class="text-sm font-bold text-white">Combat Rating: <span class="text-primary text-shadow-primary">12,450</span></span>
+                            </div>
+                            <div class="w-1 h-1 bg-textMuted rounded-full"></div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-skull text-might"></i>
+                                <span class="text-sm font-bold text-white">Total Kills: <span class="text-white">84,921</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <button class="flex-1 md:flex-none px-8 py-3 bg-primary hover:bg-primaryHover text-black font-bold rounded-xl shadow-glow-primary transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> Resume
+                        </button>
+                        <button class="flex-1 md:flex-none px-6 py-3 bg-transparent border border-borderHover hover:border-white text-white font-bold rounded-xl transition-all hover:bg-white/5 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-share-nodes"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left Column (Stats & Charts) -->
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <!-- REQUIRED: NEXUS PERFORMANCE SECTION (FROM QUERY) -->
+                    <section id="nexus-performance" class="relative bg-card rounded-2xl border border-border/80 p-6 md:p-8 overflow-hidden shadow-card hover:border-nexus/30 transition-colors duration-500">
+                        <!-- Subtle Purple Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-nexus pointer-events-none"></div>
+                        
+                        <!-- Header -->
+                        <div class="relative z-10 flex items-center justify-between mb-8">
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-xl md:text-2xl font-bold text-white tracking-tight">
+                                    Nexus Performance <span class="text-2xl ml-1">🌀</span>
+                                </h2>
+                            </div>
+                            <button class="text-xs font-bold text-nexus bg-nexus/10 px-3 py-1.5 rounded-lg border border-nexus/20 hover:bg-nexus/20 transition-colors">
+                                SEASON 4
+                            </button>
+                        </div>
+
+                        <!-- 4 Stat Boxes Grid -->
+                        <div class="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            
+                            <!-- Stat Box 1: Nexus Runs -->
+                            <div class="bg-inner/50 rounded-2xl p-4 border border-border hover:border-borderHover transition-colors flex flex-col items-center justify-center text-center h-32">
+                                <span class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Nexus Runs</span>
+                                <span class="text-3xl font-bold text-white">142</span>
+                            </div>
+
+                            <!-- Stat Box 2: Nexus Wins -->
+                            <div class="bg-inner/50 rounded-2xl p-4 border border-border hover:border-borderHover transition-colors flex flex-col items-center justify-center text-center h-32">
+                                <span class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Nexus Wins</span>
+                                <span class="text-3xl font-bold text-nexus text-shadow-nexus">89</span>
+                            </div>
+
+                            <!-- Stat Box 3: Win Rate -->
+                            <div class="bg-inner/50 rounded-2xl p-4 border border-nexus/30 shadow-[0_0_15px_rgba(157,78,221,0.15)] flex flex-col items-center justify-center text-center h-32 relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-nexus/5 group-hover:bg-nexus/10 transition-colors"></div>
+                                <span class="text-xs font-bold text-nexus uppercase tracking-wider mb-2 relative z-10">Win Rate</span>
+                                <span class="text-3xl font-bold text-nexus text-shadow-nexus relative z-10">62.7%</span>
+                            </div>
+
+                            <!-- Stat Box 4: Avg Kills -->
+                            <div class="bg-inner/50 rounded-2xl p-4 border border-border hover:border-borderHover transition-colors flex flex-col items-center justify-center text-center h-32">
+                                <span class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Avg Kills/Nexus</span>
+                                <span class="text-3xl font-bold text-textSec">34.5</span>
+                            </div>
+
+                        </div>
+
+                        <!-- Progress Bar Section -->
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-white">Nexus Mastery Progress</span>
+                                <span class="text-sm font-bold text-nexus">Level 84</span>
+                            </div>
+                            <!-- Custom Progress Bar -->
+                            <div class="h-3 bg-inner rounded-full border border-border overflow-hidden relative">
+                                <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-nexus to-[#C084FC] w-[84%] rounded-full nexus-bar-glow"></div>
+                                <!-- Shine effect -->
+                                <div class="absolute top-0 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                            </div>
+                            <div class="flex justify-between mt-2 text-xs text-textMuted font-medium">
+                                <span>Elite Tier I</span>
+                                <span>Next: Master Tier (1,250 XP)</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Recent Activity Table -->
+                    <section class="bg-card rounded-2xl border border-border p-6 shadow-card">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-white">Recent Dungeon Runs</h3>
+                            <button class="text-sm text-primary hover:text-primaryHover font-medium transition-colors">View All</button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-border/50">
+                                        <th class="py-3 px-4 text-xs font-bold text-textMuted uppercase tracking-wider">Dungeon</th>
+                                        <th class="py-3 px-4 text-xs font-bold text-textMuted uppercase tracking-wider">Result</th>
+                                        <th class="py-3 px-4 text-xs font-bold text-textMuted uppercase tracking-wider">Duration</th>
+                                        <th class="py-3 px-4 text-xs font-bold text-textMuted uppercase tracking-wider text-right">Loot</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    <tr class="group hover:bg-inner/50 transition-colors border-b border-border/30">
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-lg bg-nexus/10 border border-nexus/30 flex items-center justify-center text-nexus">
+                                                    <i class="fa-solid fa-dungeon"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-white">Crystal Spire</p>
+                                                    <p class="text-xs text-textMuted">Difficulty: Nightmare</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-bold">
+                                                <i class="fa-solid fa-check text-[10px]"></i> CLEARED
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-textSec font-medium">18m 42s</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <span class="text-gold font-bold text-xs">+240g</span>
+                                                <div class="w-6 h-6 rounded bg-nexus/20 border border-nexus/40 flex items-center justify-center text-nexus text-xs" title="Epic Item">
+                                                    <i class="fa-solid fa-ring"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="group hover:bg-inner/50 transition-colors border-b border-border/30">
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-lg bg-might/10 border border-might/30 flex items-center justify-center text-might">
+                                                    <i class="fa-solid fa-fire"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-white">Molten Core</p>
+                                                    <p class="text-xs text-textMuted">Difficulty: Hard</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-might/10 text-might border border-might/20 text-xs font-bold">
+                                                <i class="fa-solid fa-xmark text-[10px]"></i> FAILED
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-textSec font-medium">12m 15s</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <span class="text-textMuted text-xs">-</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="group hover:bg-inner/50 transition-colors border-b border-border/30">
+                                        <td class="py-4 px-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-lg bg-spirit/10 border border-spirit/30 flex items-center justify-center text-spirit">
+                                                    <i class="fa-solid fa-ghost"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-white">Shadow Vault</p>
+                                                    <p class="text-xs text-textMuted">Difficulty: Elite</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-bold">
+                                                <i class="fa-solid fa-check text-[10px]"></i> CLEARED
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-textSec font-medium">24m 05s</td>
+                                        <td class="py-4 px-4 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <span class="text-gold font-bold text-xs">+550g</span>
+                                                <div class="w-6 h-6 rounded bg-gradient-gold border border-gold flex items-center justify-center text-black text-xs shadow-glow-legendary" title="Legendary Item">
+                                                    <i class="fa-solid fa-khanda"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Combat Performance Chart -->
+                    <section class="bg-card rounded-2xl border border-border p-6 shadow-card">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Damage Output Analysis</h3>
+                                <p class="text-xs text-textMuted mt-1">Last 7 days performance metrics</p>
+                            </div>
+                            <div class="flex bg-inner rounded-lg p-1 border border-border">
+                                <button class="px-3 py-1 rounded-md bg-card text-xs font-bold text-white shadow-sm">DPS</button>
+                                <button class="px-3 py-1 rounded-md text-xs font-bold text-textMuted hover:text-white transition-colors">HPS</button>
+                            </div>
+                        </div>
+                        <div id="damageChart" class="w-full h-[300px]"></div>
+                    </section>
+                </div>
+
+                <!-- Right Column (Equipment & Attributes) -->
+                <div class="space-y-8">
+                    
+                    <!-- Attributes Radar Chart -->
+                    <section class="bg-card rounded-2xl border border-border p-6 shadow-card flex flex-col items-center">
+                        <h3 class="text-lg font-bold text-white mb-2 self-start">Combat Attributes</h3>
+                        <div id="radarChart" class="w-full h-[300px]"></div>
+                        <div class="w-full grid grid-cols-2 gap-4 mt-4">
+                            <div class="bg-inner rounded-lg p-3 border border-border">
+                                <span class="text-xs text-textMuted block">Strength</span>
+                                <span class="text-lg font-bold text-might">2,450</span>
+                            </div>
+                            <div class="bg-inner rounded-lg p-3 border border-border">
+                                <span class="text-xs text-textMuted block">Agility</span>
+                                <span class="text-lg font-bold text-primary">3,120</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Equipped Gear (Cards) -->
+                    <section class="bg-card rounded-2xl border border-border p-6 shadow-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white">Equipped Loadout</h3>
+                            <button class="w-8 h-8 rounded-lg bg-inner border border-border hover:border-primary hover:text-primary transition-all flex items-center justify-center text-textMuted">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Legendary Weapon Card -->
+                            <div class="relative group bg-[rgba(255,215,0,0.05)] border-2 border-gold/50 rounded-xl p-3 flex gap-4 transition-all hover:bg-[rgba(255,215,0,0.08)] hover:shadow-glow-legendary cursor-pointer">
+                                <div class="w-14 h-14 rounded-lg bg-black border border-gold/30 flex items-center justify-center shrink-0 relative overflow-hidden">
+                                    <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/f4b99d5b8b-c71057d84fda2e37ce5f.png" alt="glowing legendary golden sword fantasy icon" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-bold text-sm text-gold truncate">Dawnbreaker Blade</h4>
+                                        <span class="text-[10px] font-bold bg-gold text-black px-1.5 rounded">Lvl 20</span>
+                                    </div>
+                                    <p class="text-xs text-textMuted mt-0.5">Mythic Greatsword</p>
+                                    <div class="flex gap-2 mt-1.5">
+                                        <span class="text-[10px] text-might font-bold">+450 ATK</span>
+                                        <span class="text-[10px] text-primary font-bold">+12% CRIT</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Epic Armor Card -->
+                            <div class="relative group bg-[rgba(157,78,221,0.05)] border-2 border-nexus/50 rounded-xl p-3 flex gap-4 transition-all hover:bg-[rgba(157,78,221,0.08)] hover:shadow-glow-nexus cursor-pointer">
+                                <div class="w-14 h-14 rounded-lg bg-black border border-nexus/30 flex items-center justify-center shrink-0 relative overflow-hidden">
+                                    <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a78cda9204-a2c17d43ce9a8d529554.png" alt="dark purple magical armor chestplate icon" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-bold text-sm text-nexus truncate">Voidwalker Vest</h4>
+                                        <span class="text-[10px] font-bold bg-nexus text-white px-1.5 rounded">Lvl 18</span>
+                                    </div>
+                                    <p class="text-xs text-textMuted mt-0.5">Epic Light Armor</p>
+                                    <div class="flex gap-2 mt-1.5">
+                                        <span class="text-[10px] text-primary font-bold">+200 HP</span>
+                                        <span class="text-[10px] text-spirit font-bold">+15% EVA</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rare Boots Card -->
+                            <div class="relative group bg-[rgba(59,130,246,0.05)] border-2 border-rarityRare/50 rounded-xl p-3 flex gap-4 transition-all hover:bg-[rgba(59,130,246,0.08)] cursor-pointer">
+                                <div class="w-14 h-14 rounded-lg bg-black border border-rarityRare/30 flex items-center justify-center shrink-0 relative overflow-hidden">
+                                    <i class="fa-solid fa-shoe-prints text-rarityRare text-2xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-bold text-sm text-rarityRare truncate">Swiftstrider Boots</h4>
+                                        <span class="text-[10px] font-bold bg-rarityRare text-white px-1.5 rounded">Lvl 15</span>
+                                    </div>
+                                    <p class="text-xs text-textMuted mt-0.5">Rare Footwear</p>
+                                    <div class="flex gap-2 mt-1.5">
+                                        <span class="text-[10px] text-white font-bold">+45 SPD</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Active Quests -->
+                    <section class="bg-card rounded-2xl border border-border p-6 shadow-card">
+                        <h3 class="text-lg font-bold text-white mb-4">Active Quests</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-bold text-white">Slay the Void Dragon</span>
+                                    <span class="text-xs font-bold text-might">1/3</span>
+                                </div>
+                                <p class="text-xs text-textMuted mb-2">Defeat the Void Dragon in the Nexus Depths.</p>
+                                <div class="h-2 bg-inner rounded-full overflow-hidden">
+                                    <div class="h-full bg-might w-[33%] rounded-full"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-bold text-white">Collect Soul Shards</span>
+                                    <span class="text-xs font-bold text-spirit">45/50</span>
+                                </div>
+                                <p class="text-xs text-textMuted mb-2">Gather shards from fallen enemies.</p>
+                                <div class="h-2 bg-inner rounded-full overflow-hidden">
+                                    <div class="h-full bg-spirit w-[90%] rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="border-t border-border pt-8 pb-4 mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-2 text-textMuted">
+                        <i class="fa-solid fa-dragon"></i>
+                        <span class="text-sm font-medium">Freedom World RPG &copy; 2024</span>
+                    </div>
+                    <div class="flex gap-6">
+                        <a href="#" class="text-sm text-textMuted hover:text-primary transition-colors">Support</a>
+                        <a href="#" class="text-sm text-textMuted hover:text-primary transition-colors">Privacy Policy</a>
+                        <a href="#" class="text-sm text-textMuted hover:text-primary transition-colors">Terms of Service</a>
+                    </div>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-8 h-8 rounded-full bg-inner flex items-center justify-center text-textMuted hover:text-white hover:bg-border transition-all"><i class="fa-brands fa-discord"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-inner flex items-center justify-center text-textMuted hover:text-white hover:bg-border transition-all"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <!-- Scripts for Interactivity -->
+    <script>
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if(btn && sidebar && overlay) {
+            btn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            });
+        }
+
+        // Charts Initialization
+        window.addEventListener('load', function() {
+            try {
+                // Damage Chart (Area Chart)
+                const damageTrace = {
+                    x: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    y: [12500, 14200, 11800, 15600, 13900, 18400, 16500],
+                    type: 'scatter',
+                    mode: 'lines',
+                    fill: 'tozeroy',
+                    line: {
+                        color: '#00FF88',
+                        width: 3,
+                        shape: 'spline'
+                    },
+                    marker: {
+                        color: '#00FF88',
+                        size: 6,
+                        line: { color: '#0A0E10', width: 2 }
+                    },
+                    fillcolor: 'rgba(0, 255, 136, 0.1)'
+                };
+
+                const damageLayout = {
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    margin: { t: 20, r: 20, b: 40, l: 40 },
+                    xaxis: {
+                        showgrid: false,
+                        color: '#7A8A99',
+                        tickfont: { family: 'Inter', size: 12 }
+                    },
+                    yaxis: {
+                        showgrid: true,
+                        gridcolor: '#1E2529',
+                        color: '#7A8A99',
+                        tickfont: { family: 'Inter', size: 12 },
+                        zeroline: false
+                    },
+                    hovermode: 'x unified',
+                    showlegend: false
+                };
+
+                const config = { responsive: true, displayModeBar: false };
+                Plotly.newPlot('damageChart', [damageTrace], damageLayout, config);
+
+
+                // Radar Chart (Attributes)
+                const radarData = [{
+                    type: 'scatterpolar',
+                    r: [80, 95, 70, 60, 85, 80],
+                    theta: ['STR', 'AGI', 'INT', 'VIT', 'DEX', 'LUK'],
+                    fill: 'toself',
+                    line: {
+                        color: '#8B5CF6' // Purple stroke as requested
+                    },
+                    fillcolor: 'rgba(139, 92, 246, 0.25)' // 25% opacity fill
+                }];
+
+                const radarLayout = {
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    polar: {
+                        bgcolor: 'rgba(0,0,0,0)',
+                        radialaxis: {
+                            visible: true,
+                            range: [0, 100],
+                            tickfont: { size: 8, color: '#7A8A99' },
+                            gridcolor: '#1E2529'
+                        },
+                        angularaxis: {
+                            tickfont: { size: 12, color: '#FFFFFF', family: 'Inter', weight: 700 },
+                            gridcolor: '#1E2529'
+                        }
+                    },
+                    margin: { t: 20, r: 20, b: 20, l: 20 },
+                    showlegend: false
+                };
+
+                Plotly.newPlot('radarChart', radarData, radarLayout, config);
+
+            } catch (e) {
+                console.error("Chart loading error:", e);
+            }
+        });
+    </script>
+</body>
+</html>

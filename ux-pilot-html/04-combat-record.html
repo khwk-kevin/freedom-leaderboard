@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combat Record - Freedom World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        page: '#0A0E10',
+                        card: '#0D1215',
+                        inner: '#1A1A1A',
+                        border: '#1E2529',
+                        'border-hover': '#2A2A2A',
+                        primary: '#00FF88',
+                        'primary-hover': '#00FFB8',
+                        'primary-glow': 'rgba(0, 255, 136, 0.4)',
+                        loss: '#FF6B6B',
+                        spirit: '#A78BFA',
+                        legendary: '#FFD700',
+                        muted: '#7A8A99',
+                        secondary: '#B8C5D0',
+                        white: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow-primary': '0 0 12px rgba(0, 255, 136, 0.4)',
+                        'glow-loss': '0 0 12px rgba(255, 107, 107, 0.4)',
+                        'glow-fire': '0 0 16px rgba(255, 107, 53, 0.5)',
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.4)',
+                        'legendary': '0 0 20px rgba(255, 215, 0, 0.4)',
+                        'epic': '0 0 16px rgba(157, 78, 221, 0.3)',
+                    },
+                    backgroundImage: {
+                        'gradient-legendary': 'linear-gradient(to right, #FFD700, #FFA500)',
+                        'gradient-hp': 'linear-gradient(to right, #00FF88, #00FFB8)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0A0E10; color: #FFFFFF; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0A0E10; }
+        ::-webkit-scrollbar-thumb { background: #1E2529; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2A2A2A; }
+        .text-glow-primary { text-shadow: 0 0 8px rgba(0, 255, 136, 0.6); }
+        .text-glow-fire { text-shadow: 0 0 10px rgba(255, 107, 53, 0.8); }
+        .text-glow-loss { text-shadow: 0 0 8px rgba(255, 107, 107, 0.6); }
+        .text-glow-white { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- Mobile Navigation (Hamburger) -->
+    <div class="md:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-gradient-legendary flex items-center justify-center text-black font-bold shadow-legendary">FW</div>
+            <span class="font-bold text-white tracking-wide">THE SCAPE</span>
+        </div>
+        <button class="text-secondary hover:text-primary transition-colors">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="hidden md:flex flex-col w-64 bg-card border-r border-border h-screen sticky top-0 z-40 overflow-y-auto">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-legendary flex items-center justify-center text-black font-black text-xl shadow-legendary">FW</div>
+            <div>
+                <h1 class="font-bold text-white tracking-wide leading-tight">THE SCAPE</h1>
+                <p class="text-xs text-muted font-medium">Freedom World</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-4 space-y-1">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-secondary hover:text-white hover:bg-inner rounded-xl transition-all group">
+                <i class="fa-solid fa-house text-muted group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Home Base</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-secondary hover:text-white hover:bg-inner rounded-xl transition-all group">
+                <i class="fa-solid fa-layer-group text-muted group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Deck Builder</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-white bg-inner border border-border rounded-xl transition-all group shadow-card">
+                <i class="fa-solid fa-skull text-primary transition-colors"></i>
+                <span class="font-bold text-white">Combat Record</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-secondary hover:text-white hover:bg-inner rounded-xl transition-all group">
+                <i class="fa-solid fa-trophy text-muted group-hover:text-legendary transition-colors"></i>
+                <span class="font-medium">Leaderboards</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-secondary hover:text-white hover:bg-inner rounded-xl transition-all group">
+                <i class="fa-solid fa-store text-muted group-hover:text-primary transition-colors"></i>
+                <span class="font-medium">Marketplace</span>
+            </a>
+        </nav>
+
+        <div class="p-4 mt-auto">
+            <div class="bg-inner rounded-xl p-4 border border-border flex items-center gap-3">
+                <div class="relative">
+                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" class="w-10 h-10 rounded-full object-cover border-2 border-[#FFD700]" alt="User">
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-inner"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">ShadowSlayer</p>
+                    <p class="text-xs text-legendary truncate">Lvl 42 Warlord</p>
+                </div>
+                <button class="text-muted hover:text-white transition-colors"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-page min-h-screen pt-16 md:pt-0 overflow-x-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 text-muted text-sm mb-1">
+                        <span>Profile</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-primary">Combat Record</span>
+                    </div>
+                    <h2 class="text-3xl font-black text-white tracking-tight">BATTLE HISTORY</h2>
+                </div>
+                <div class="flex gap-3">
+                    <button class="px-5 py-2.5 rounded-lg border border-border bg-transparent text-white font-bold hover:border-primary hover:text-primary transition-all duration-300">
+                        <i class="fa-solid fa-share-nodes mr-2"></i> Share
+                    </button>
+                    <button class="px-6 py-2.5 rounded-lg bg-primary text-black font-bold shadow-glow-primary hover:bg-primary-hover transition-all duration-300 transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-swords mr-2"></i> Find Match
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Combat Record Section (The Request) -->
+            <section id="combat-record" class="bg-card border border-border rounded-[16px] p-6 shadow-card relative overflow-hidden group">
+                <!-- Subtle background effect -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-primary opacity-[0.03] rounded-bl-[100px] pointer-events-none"></div>
+
+                <!-- Section Title -->
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-lg bg-inner border border-border flex items-center justify-center">
+                        <i class="fa-solid fa-swords text-primary text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Combat Record</h3>
+                    <span class="ml-auto px-3 py-1 bg-inner border border-border rounded-full text-xs font-bold text-muted uppercase tracking-wider">Season 5</span>
+                </div>
+
+                <!-- Top Row Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <!-- Wins -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1 hover:border-primary/30 transition-colors">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Wins</span>
+                        <span class="text-3xl font-bold text-primary text-glow-primary">842</span>
+                    </div>
+                    
+                    <!-- Losses -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1 hover:border-loss/30 transition-colors">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Losses</span>
+                        <span class="text-3xl font-bold text-loss text-glow-loss">315</span>
+                    </div>
+
+                    <!-- Win Rate -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1 hover:border-primary/30 transition-colors">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Win Rate</span>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-3xl font-bold text-primary text-glow-primary">72.8</span>
+                            <span class="text-sm font-bold text-primary">%</span>
+                        </div>
+                    </div>
+
+                    <!-- Monsters Slain -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1 hover:border-white/20 transition-colors">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Monsters Slain</span>
+                        <span class="text-3xl font-bold text-white text-glow-white">12,405</span>
+                    </div>
+                </div>
+
+                <!-- Win/Loss Bar -->
+                <div class="mb-6">
+                    <div class="h-[10px] w-full bg-inner rounded-full border border-border overflow-hidden flex relative" role="progressbar" aria-valuenow="72.8" aria-valuemin="0" aria-valuemax="100" aria-label="Win loss ratio: 72.8 percent wins">
+                        <div class="h-full bg-gradient-hp shadow-[0_0_10px_rgba(0,255,136,0.5)] border-r border-black/40" style="width: 72.8%"></div>
+                        <!-- Little indicator line at the break -->
+                        <div class="w-[2px] h-full bg-black absolute left-[72.8%] z-10"></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs font-bold text-primary">72.8% Won</span>
+                        <span class="text-xs font-semibold text-muted">1,157 total matches</span>
+                        <span class="text-xs font-bold text-loss">27.2% Lost</span>
+                    </div>
+                </div>
+
+                <!-- Second Row Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Avg Kills/Match -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Avg Kills/Match</span>
+                        <span class="text-xl font-bold text-secondary">10.7</span>
+                    </div>
+                    
+                    <!-- Best Streak -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-[#FF6B35] opacity-[0.05]"></div>
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide z-10">Best Streak</span>
+                        <div class="flex items-center gap-2 z-10">
+                            <i class="fa-solid fa-fire text-[#FF6B35] text-sm animate-pulse"></i>
+                            <span class="text-xl font-bold text-[#FF6B35] text-glow-fire">24W</span>
+                        </div>
+                    </div>
+
+                    <!-- Current Streak -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Current Streak</span>
+                        <span class="text-xl font-bold text-primary text-glow-primary">8W</span>
+                    </div>
+
+                    <!-- Total Matches -->
+                    <div class="bg-inner border border-border rounded-xl p-4 flex flex-col items-center justify-center gap-1">
+                        <span class="text-muted text-xs font-bold uppercase tracking-wide">Total Matches</span>
+                        <span class="text-xl font-bold text-secondary">1,157</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expanded Stats & Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Recent Matches List -->
+                <div class="lg:col-span-2 bg-card border border-border rounded-[16px] p-6 shadow-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-white">Recent Battles</h3>
+                        <button class="text-sm text-primary font-bold hover:text-primary-hover">View All</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <!-- Match Item 1 (Win) -->
+                        <div class="group flex flex-col sm:flex-row items-center justify-between p-4 bg-inner border-l-4 border-l-primary rounded-r-xl border-y border-r border-border hover:border-primary/30 transition-all cursor-pointer">
+                            <div class="flex items-center gap-4 w-full sm:w-auto">
+                                <div class="w-12 h-12 rounded-lg bg-[#0A0E10] border border-border flex items-center justify-center overflow-hidden">
+                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" class="w-full h-full object-cover opacity-80" alt="Opponent">
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-primary font-black text-sm uppercase tracking-wider">VICTORY</span>
+                                        <span class="text-xs text-muted">• Ranked</span>
+                                    </div>
+                                    <h4 class="font-bold text-white">vs. VoidWalker99</h4>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6 mt-3 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
+                                <div class="text-right">
+                                    <p class="text-xs text-muted font-medium">Duration</p>
+                                    <p class="text-sm font-bold text-secondary">12m 45s</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-muted font-medium">Rating Change</p>
+                                    <p class="text-sm font-bold text-primary">+24 RR</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-muted group-hover:text-white transition-colors"></i>
+                            </div>
+                        </div>
+
+                        <!-- Match Item 2 (Loss) -->
+                        <div class="group flex flex-col sm:flex-row items-center justify-between p-4 bg-inner border-l-4 border-l-loss rounded-r-xl border-y border-r border-border hover:border-loss/30 transition-all cursor-pointer">
+                            <div class="flex items-center gap-4 w-full sm:w-auto">
+                                <div class="w-12 h-12 rounded-lg bg-[#0A0E10] border border-border flex items-center justify-center overflow-hidden">
+                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg" class="w-full h-full object-cover opacity-80" alt="Opponent">
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-loss font-black text-sm uppercase tracking-wider">DEFEAT</span>
+                                        <span class="text-xs text-muted">• Tournament</span>
+                                    </div>
+                                    <h4 class="font-bold text-white">vs. DragonLord</h4>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6 mt-3 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
+                                <div class="text-right">
+                                    <p class="text-xs text-muted font-medium">Duration</p>
+                                    <p class="text-sm font-bold text-secondary">28m 10s</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-muted font-medium">Rating Change</p>
+                                    <p class="text-sm font-bold text-loss">-18 RR</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-muted group-hover:text-white transition-colors"></i>
+                            </div>
+                        </div>
+
+                        <!-- Match Item 3 (Win) -->
+                        <div class="group flex flex-col sm:flex-row items-center justify-between p-4 bg-inner border-l-4 border-l-primary rounded-r-xl border-y border-r border-border hover:border-primary/30 transition-all cursor-pointer">
+                            <div class="flex items-center gap-4 w-full sm:w-auto">
+                                <div class="w-12 h-12 rounded-lg bg-[#0A0E10] border border-border flex items-center justify-center overflow-hidden">
+                                    <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg" class="w-full h-full object-cover opacity-80" alt="Opponent">
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-primary font-black text-sm uppercase tracking-wider">VICTORY</span>
+                                        <span class="text-xs text-muted">• Casual</span>
+                                    </div>
+                                    <h4 class="font-bold text-white">vs. NoobMaster</h4>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6 mt-3 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
+                                <div class="text-right">
+                                    <p class="text-xs text-muted font-medium">Duration</p>
+                                    <p class="text-sm font-bold text-secondary">08m 22s</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-muted font-medium">Rating Change</p>
+                                    <p class="text-sm font-bold text-secondary">--</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-muted group-hover:text-white transition-colors"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Radar Chart -->
+                <div class="bg-card border border-border rounded-[16px] p-6 shadow-card flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-white">Combat Style</h3>
+                        <button class="text-muted hover:text-white"><i class="fa-solid fa-circle-info"></i></button>
+                    </div>
+                    <div id="radarChartContainer" class="flex-1 w-full min-h-[300px]"></div>
+                </div>
+            </div>
+
+            <!-- Most Used Cards Section -->
+            <section class="bg-card border border-border rounded-[16px] p-6 shadow-card">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-white">Signature Cards</h3>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1.5 rounded-lg bg-inner border border-border text-xs font-bold text-white hover:border-primary transition-colors">All</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-transparent border border-transparent text-xs font-bold text-muted hover:text-white transition-colors">Spells</button>
+                        <button class="px-3 py-1.5 rounded-lg bg-transparent border border-transparent text-xs font-bold text-muted hover:text-white transition-colors">Units</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Card 1: Legendary -->
+                    <div class="relative group cursor-pointer">
+                        <div class="absolute inset-0 bg-gradient-legendary opacity-20 blur-xl group-hover:opacity-40 transition-opacity rounded-xl"></div>
+                        <div class="relative bg-inner border-2 border-[#FFD700] rounded-xl overflow-hidden h-full flex flex-col shadow-legendary transition-transform group-hover:-translate-y-1">
+                            <div class="h-32 bg-[#000] relative overflow-hidden">
+                                <img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/ec61bcbe31-f939873c8e1b3a6156d1.png" alt="fantasy card art golden dragon dark background glowing eyes" />
+                                <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-gradient-legendary flex items-center justify-center text-[10px] font-black text-black">L</div>
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col">
+                                <h4 class="font-bold text-white mb-1">Aurelion, Sun Forger</h4>
+                                <p class="text-xs text-[#FFD700] font-bold uppercase mb-3">Legendary Unit</p>
+                                <div class="mt-auto grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Winrate</span>
+                                        <span class="text-primary font-bold">68%</span>
+                                    </div>
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Matches</span>
+                                        <span class="text-white font-bold">245</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Epic -->
+                    <div class="relative group cursor-pointer">
+                        <div class="absolute inset-0 bg-[#9D4EDD] opacity-10 blur-xl group-hover:opacity-30 transition-opacity rounded-xl"></div>
+                        <div class="relative bg-inner border-2 border-[#9D4EDD] rounded-xl overflow-hidden h-full flex flex-col shadow-epic transition-transform group-hover:-translate-y-1">
+                            <div class="h-32 bg-[#000] relative overflow-hidden">
+                                <img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a73c66e004-005b4ae4e03894730701.png" alt="fantasy card art dark void mage purple magic" />
+                                <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#9D4EDD] flex items-center justify-center text-[10px] font-black text-white">E</div>
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col">
+                                <h4 class="font-bold text-white mb-1">Void Singularity</h4>
+                                <p class="text-xs text-[#9D4EDD] font-bold uppercase mb-3">Epic Spell</p>
+                                <div class="mt-auto grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Winrate</span>
+                                        <span class="text-primary font-bold">54%</span>
+                                    </div>
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Matches</span>
+                                        <span class="text-white font-bold">892</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Rare -->
+                    <div class="relative group cursor-pointer">
+                        <div class="relative bg-inner border border-[#3B82F6] rounded-xl overflow-hidden h-full flex flex-col transition-transform group-hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                            <div class="h-32 bg-[#000] relative overflow-hidden">
+                                <img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/4e83fb0820-aa6204cdc9e1c71a2420.png" alt="fantasy card art ice golem blue crystal armor" />
+                                <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-[10px] font-black text-white">R</div>
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col">
+                                <h4 class="font-bold text-white mb-1">Frost Guardian</h4>
+                                <p class="text-xs text-[#3B82F6] font-bold uppercase mb-3">Rare Unit</p>
+                                <div class="mt-auto grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Winrate</span>
+                                        <span class="text-primary font-bold">61%</span>
+                                    </div>
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Matches</span>
+                                        <span class="text-white font-bold">412</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Common -->
+                    <div class="relative group cursor-pointer">
+                        <div class="relative bg-inner border border-muted rounded-xl overflow-hidden h-full flex flex-col transition-transform group-hover:-translate-y-1 hover:border-white/50">
+                            <div class="h-32 bg-[#000] relative overflow-hidden">
+                                <img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/7d70d690fd-254c7c7acd8a717542a3.png" alt="fantasy card art rusty iron sword simple background" />
+                                <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[10px] font-black text-white">C</div>
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col">
+                                <h4 class="font-bold text-white mb-1">Iron Shortsword</h4>
+                                <p class="text-xs text-muted font-bold uppercase mb-3">Common Item</p>
+                                <div class="mt-auto grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Winrate</span>
+                                        <span class="text-white font-bold">48%</span>
+                                    </div>
+                                    <div class="bg-[#0A0E10] rounded px-2 py-1 flex justify-between">
+                                        <span class="text-muted">Matches</span>
+                                        <span class="text-white font-bold">1.2k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <!-- Class Progression Table -->
+             <section class="bg-card border border-border rounded-[16px] overflow-hidden shadow-card">
+                <div class="p-6 border-b border-border">
+                    <h3 class="text-lg font-bold text-white">Class Mastery</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-inner text-muted text-xs uppercase tracking-wider font-bold">
+                                <th class="px-6 py-4">Class</th>
+                                <th class="px-6 py-4">Level</th>
+                                <th class="px-6 py-4">Experience</th>
+                                <th class="px-6 py-4 text-right">Win Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            <tr class="hover:bg-inner transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-[#FF6B6B]/20 flex items-center justify-center text-[#FF6B6B]">
+                                            <i class="fa-solid fa-hand-fist"></i>
+                                        </div>
+                                        <span class="font-bold text-white">Berserker</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded bg-[#0A0E10] border border-border text-xs font-bold text-white">Lvl 42</span>
+                                </td>
+                                <td class="px-6 py-4 min-w-[200px]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-2 bg-[#0A0E10] rounded-full overflow-hidden">
+                                            <div class="h-full bg-[#FF6B6B] w-[85%] shadow-[0_0_8px_rgba(255,107,107,0.4)]"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-secondary">85%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-primary font-bold">62.4%</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-inner transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-[#A78BFA]/20 flex items-center justify-center text-[#A78BFA]">
+                                            <i class="fa-solid fa-wand-sparkles"></i>
+                                        </div>
+                                        <span class="font-bold text-white">Arcanist</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded bg-[#0A0E10] border border-border text-xs font-bold text-white">Lvl 28</span>
+                                </td>
+                                <td class="px-6 py-4 min-w-[200px]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-2 bg-[#0A0E10] rounded-full overflow-hidden">
+                                            <div class="h-full bg-[#A78BFA] w-[42%] shadow-[0_0_8px_rgba(167,139,250,0.4)]"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-secondary">42%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-white font-bold">51.2%</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-inner transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-[#00FF88]/20 flex items-center justify-center text-[#00FF88]">
+                                            <i class="fa-solid fa-leaf"></i>
+                                        </div>
+                                        <span class="font-bold text-white">Druid</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded bg-[#0A0E10] border border-border text-xs font-bold text-white">Lvl 15</span>
+                                </td>
+                                <td class="px-6 py-4 min-w-[200px]">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 h-2 bg-[#0A0E10] rounded-full overflow-hidden">
+                                            <div class="h-full bg-[#00FF88] w-[12%] shadow-[0_0_8px_rgba(0,255,136,0.4)]"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-secondary">12%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-loss font-bold">44.8%</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-12 border-t border-border bg-card py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded bg-gradient-legendary flex items-center justify-center text-black font-bold">FW</div>
+                        <span class="font-bold text-white text-lg">THE SCAPE</span>
+                    </div>
+                    <p class="text-secondary text-sm leading-relaxed max-w-sm">
+                        Dominating the dark fantasy card battle arena. Build your deck, crush your enemies, and ascend the leaderboards in Freedom World.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Community</h4>
+                    <ul class="space-y-2 text-sm text-secondary">
+                        <li><a href="#" class="hover:text-primary transition-colors">Discord Server</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Twitter / X</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Reddit</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Tournaments</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-secondary">
+                        <li><a href="#" class="hover:text-primary transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Card Database</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Report Bug</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Status</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-muted">© 2024 Freedom World. All rights reserved.</p>
+                <div class="flex gap-4 text-muted">
+                    <a href="#" class="text-xs hover:text-white">Privacy Policy</a>
+                    <a href="#" class="text-xs hover:text-white">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Chart Generation
+        window.addEventListener('load', function() {
+            try {
+                // Radar Chart Data
+                var data = [{
+                    type: 'scatterpolar',
+                    r: [85, 72, 60, 90, 78, 85],
+                    theta: ['Aggression', 'Defense', 'Utility', 'Tempo', 'Synergy', 'Aggression'],
+                    fill: 'toself',
+                    fillcolor: 'rgba(139, 92, 246, 0.25)', // Purple fill 25% opacity as requested
+                    line: {
+                        color: '#8B5CF6', // Purple stroke
+                        width: 2
+                    },
+                    marker: {
+                        color: '#8B5CF6',
+                        size: 4
+                    }
+                }];
+
+                var layout = {
+                    polar: {
+                        radialaxis: {
+                            visible: true,
+                            range: [0, 100],
+                            tickfont: { color: '#7A8A99', size: 10 },
+                            gridcolor: '#1E2529',
+                            linecolor: '#1E2529'
+                        },
+                        angularaxis: {
+                            tickfont: { color: '#FFFFFF', size: 12, family: 'Inter' },
+                            gridcolor: '#1E2529',
+                            linecolor: '#1E2529'
+                        },
+                        bgcolor: 'rgba(0,0,0,0)'
+                    },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    showlegend: false,
+                    margin: { t: 20, b: 20, l: 40, r: 40 },
+                    height: 300
+                };
+
+                var config = {
+                    responsive: true,
+                    displayModeBar: false
+                };
+
+                Plotly.newPlot('radarChartContainer', data, layout, config);
+
+            } catch(e) {
+                console.error("Chart generation error:", e);
+                document.getElementById('radarChartContainer').innerHTML = '<div class="flex items-center justify-center h-full text-muted">Chart loading failed</div>';
+            }
+        });
+    </script>
+</body>
+</html>
