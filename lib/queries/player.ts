@@ -243,7 +243,7 @@ export async function getPlayerPercentiles(fdvId: number) {
         CASE WHEN COUNT(*) > 0
           THEN (COALESCE(SUM(monster_killed_total), 0)::numeric / COUNT(*)::numeric)
           ELSE 0 END as avg_kills,
-        COALESCE(SUM(received_nft), 0) as total_nfts
+        COALESCE(SUM(received_nft::int), 0) as total_nfts
       FROM web_card_game_prod.game_match_resulted
       GROUP BY player_fdv_id
       HAVING COUNT(*) >= 10
@@ -279,7 +279,7 @@ export async function getPlayerCombatRating(fdvId: number) {
         CASE WHEN COUNT(*) > 0
           THEN (COALESCE(SUM(monster_killed_total), 0)::numeric / COUNT(*)::numeric)
           ELSE 0 END as avg_kills,
-        COALESCE(SUM(received_nft), 0)::numeric as total_nfts,
+        COALESCE(SUM(received_nft::int), 0)::numeric as total_nfts,
         GREATEST(
           COALESCE(MAX(player_stats_damage_increase), 0),
           COALESCE(MAX(player_stats_block_increase), 0),
@@ -323,7 +323,7 @@ export async function getCombatRatingPercentile(fdvId: number) {
             COALESCE(MAX(player_stats_block_increase), 0),
             COALESCE(MAX(player_stats_heal_increase), 0)
           )::numeric / 1000.0 * 100, 100) * 0.10) +
-          (LEAST(COALESCE(SUM(received_nft), 0)::numeric / 50.0 * 100, 100) * 0.10) +
+          (LEAST(COALESCE(SUM(received_nft::int), 0)::numeric / 50.0 * 100, 100) * 0.10) +
           (LEAST(
             (CASE WHEN COUNT(*) FILTER (WHERE is_nexus = true) > 0
               THEN (COUNT(*) FILTER (WHERE is_nexus = true AND match_result = 'Win')::numeric / COUNT(*) FILTER (WHERE is_nexus = true)::numeric * 100)
