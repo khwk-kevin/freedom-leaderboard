@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import SearchBar from './SearchBar';
 
 export default function Sidebar() {
@@ -12,8 +13,7 @@ export default function Sidebar() {
       {/* Mobile Navigation Trigger */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0D1215] border-b border-[#1E2529] px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-gradient-to-br from-[#00FF88] to-green-600 flex items-center justify-center text-black font-bold">F</div>
-          <span className="font-bold text-white tracking-wide">FREEDOM</span>
+          <Image src="/freedom-logo.png" alt="Freedom World" width={120} height={32} className="h-8 w-auto" />
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white p-2">
           <i className={`fa-solid ${mobileOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
@@ -23,12 +23,8 @@ export default function Sidebar() {
       {/* Sidebar */}
       <aside className={`${mobileOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-72 bg-[#0D1215] border-r border-[#1E2529] fixed h-full z-40 overflow-y-auto top-[60px] md:top-0`}>
         {/* Logo */}
-        <div className="p-6 flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#00FF88] to-green-600 shadow-[0_0_15px_rgba(0,255,136,0.3)] flex items-center justify-center text-black font-black text-xl">F</div>
-          <div>
-            <h1 className="font-bold text-white tracking-wider text-lg">FREEDOM</h1>
-            <p className="text-[10px] text-[#A0AEC0] uppercase tracking-widest">World / The Scape</p>
-          </div>
+        <div className="p-6 flex items-center justify-center mb-4">
+          <Image src="/freedom-logo.png" alt="Freedom World" width={180} height={48} className="h-12 w-auto" priority />
         </div>
 
         {/* Search */}
@@ -55,7 +51,7 @@ export default function Sidebar() {
         {/* Footer */}
         <div className="p-4 border-t border-[#1E2529]">
           <div className="flex items-center gap-3 p-2 rounded-lg bg-[#1A1A1A] border border-[#1E2529]">
-            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-[#00FF88] to-green-600 flex items-center justify-center text-black font-bold text-xs">FW</div>
+            <Image src="/freedom-logo.png" alt="Freedom World" width={24} height={24} className="w-6 h-6 object-contain" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-white truncate">Freedom World</p>
               <p className="text-[10px] text-[#00FF88] truncate">Player Hub</p>

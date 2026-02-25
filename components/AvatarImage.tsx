@@ -5,7 +5,7 @@ export default function AvatarImage({ fdvId, name, size = 32, className = '' }: 
   const [failed, setFailed] = useState(false);
   const src = failed
     ? `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366F1&color=fff&size=${size}`
-    : `https://gateway.freedom.world/api/freedom-wallet/profile/image/${fdvId}`;
+    : `/api/avatar/${fdvId}`;
 
   return (
     <img
