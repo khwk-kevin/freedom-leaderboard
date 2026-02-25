@@ -1,17 +1,22 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import ShareButton from '@/components/ShareButton';
-import AvatarImage from '@/components/AvatarImage';
+import HeroHeader from '@/components/HeroHeader';
 import StatCard from '@/components/StatCard';
-import { getPlayerInfo, getPlayerScapeSummary, getPlayerMaterials, getPlayerEquipment, getPlayerMatchHistory, getPlayerPlanetSummary, getPlayerCombatStats, getTotalNFTs } from '@/lib/queries/player';
+import RadarChart from '@/components/RadarChart';
+import MatchHistory from '@/components/MatchHistory';
+import EquipmentLoadout from '@/components/EquipmentLoadout';
+import MaterialsNFTs from '@/components/MaterialsNFTs';
+import NexusStats from '@/components/NexusStats';
+import BuildIdentity from '@/components/BuildIdentity';
+import PlanetStats from '@/components/PlanetStats';
+import {
+  getPlayerInfo, getPlayerScapeSummary, getPlayerMaterials, getPlayerEquipment,
+  getPlayerMatchHistory, getPlayerPlanetSummary, getPlayerCombatStats, getTotalNFTs,
+  getPlayerNexusStats, getPlayerWinStreak, getPlayerDominantRole,
+  getPlayerRadarStats, getPlayerCombatRating, getCombatRatingPercentile,
+} from '@/lib/queries/player';
 
 export const revalidate = 600;
-
-const MATERIAL_NAMES: Record<string, string> = {
-  fds: 'Freedom Dust', vsa: 'Voidstone Ash', admt: 'Adamantite', aths: 'Athersteel',
-  biog: 'Biogel', bstr: 'Blastite', crm: 'Chromium', drs: 'Darkite Shard',
-  ncc: 'Necrocite', nrfm: 'Neuroform', obs: 'Obsidianite', pmf: 'Plasma Flux', qtpc: 'Quanticore',
-};
 
 type Props = { params: Promise<{ fdvId: string }> };
 
@@ -34,9 +39,12 @@ export default async function PlayerPage({ params }: Props) {
   const player = await getPlayerInfo(id);
   if (!player) notFound();
 
-  const [summary, materials, equipment, history, planets, combat, nfts] = await Promise.all([
+  const [summary, materials, equipment, history, planets, combat, nfts, nexus, winStreak, dominantRole, radar, combatRating, combatPercentile] = await Promise.all([
     getPlayerScapeSummary(id), getPlayerMaterials(id), getPlayerEquipment(id),
-    getPlayerMatchHistory(id), getPlayerPlanetSummary(id), getPlayerCombatStats(id), getTotalNFTs(id),
+    getPlayerMatchHistory(id), getPlayerPlanetSummary(id), getPlayerCombatStats(id),
+    getTotalNFTs(id), getPlayerNexusStats(id), getPlayerWinStreak(id),
+    getPlayerDominantRole(id), getPlayerRadarStats(id),
+    getPlayerCombatRating(id), getCombatRatingPercentile(id),
   ]);
 
   const name = player.avatar_name || `#FDW${fdvId}`;
@@ -44,137 +52,156 @@ export default async function PlayerPage({ params }: Props) {
   const winPct = s ? (s.total_matches > 0 ? ((s.wins / s.total_matches) * 100) : 0) : 0;
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <section className="bg-gray-900 rounded-xl p-6 border border-gray-800 flex flex-col sm:flex-row items-center gap-6">
-        <AvatarImage fdvId={id} name={name} size={96} />
-        <div className="text-center sm:text-left flex-1">
-          <h1 className="text-3xl font-bold">{name}</h1>
-          <p className="text-purple-400 text-lg">Level {s?.max_level || '?'} · {Number(s?.max_total_xp || 0).toLocaleString()} XP</p>
-          {s?.first_match && <p className="text-gray-500 text-sm mt-1">Member since {new Date(s.first_match).toLocaleDateString()}</p>}
-        </div>
-        <ShareButton />
-      </section>
+    <>
+      {/* Breadcrumbs */}
+      <div className="flex items-center gap-2 text-sm text-[#A0AEC0] mb-6">
+        <a href="/" className="hover:text-white transition-colors">Home</a>
+        <i className="fa-solid fa-chevron-right text-[10px]"></i>
+        <a href="/leaderboards" className="hover:text-white transition-colors">Players</a>
+        <i className="fa-solid fa-chevron-right text-[10px]"></i>
+        <span className="text-white font-medium">{name}</span>
+      </div>
 
-      {/* Combat Record */}
-      {s && s.total_matches > 0 && (
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">⚔️ Combat Record</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <StatCard label="Wins" value={s.wins} icon="🟢" />
-            <StatCard label="Losses" value={s.losses} icon="🔴" />
-            <StatCard label="Abandons" value={s.abandons} icon="🟡" />
-            <StatCard label="Win Rate" value={`${s.win_rate}%`} icon="🎯" />
-          </div>
-          <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
-            <div className="bg-green-500 h-3 rounded-full" style={{ width: `${winPct}%` }} />
-          </div>
-          <p className="text-gray-500 text-sm mt-2">{s.total_matches.toLocaleString()} total matches</p>
-        </section>
-      )}
+      {/* Hero Header */}
+      <HeroHeader
+        name={name}
+        fdvId={id}
+        level={s?.max_level || 0}
+        totalXp={s?.max_total_xp || 0}
+        firstMatch={s?.first_match ? String(s.first_match) : null}
+        combatRating={(combatRating as Record<string, number>)?.combat_rating ?? null}
+        combatPercentile={combatPercentile as number}
+        dominantRole={dominantRole as { primary: { name: string; icon: string }; secondary: { name: string; icon: string } } | null}
+      />
 
-      {/* Monster Stats + Combat Stats */}
-      {s && s.total_kills > 0 && (
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">👹 Monster Stats</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Monsters Killed" value={s.total_kills} icon="💀" />
-            <StatCard label="Max Damage" value={(combat as Record<string, number>)?.max_damage || 0} icon="⚡" />
-            <StatCard label="Max Block" value={(combat as Record<string, number>)?.max_block || 0} icon="🛡️" />
-            <StatCard label="Max Heal" value={(combat as Record<string, number>)?.max_heal || 0} icon="💚" />
-          </div>
-        </section>
-      )}
-
-      {/* Equipment */}
-      {equipment && (
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">🎒 Equipment Loadout</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {Object.entries(equipment).filter(([, v]) => v).map(([k, v]) => (
-              <div key={k} className="bg-gray-800 rounded-lg p-3">
-                <div className="text-gray-400 text-xs uppercase">{k}</div>
-                <div className="text-sm text-white truncate">{v}</div>
+      {/* Dashboard Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        {/* Main Column (2/3) */}
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          {/* Battle Performance Stats */}
+          {s && s.total_matches > 0 && (
+            <section>
+              <h2 className="text-xl font-bold text-white mb-4">
+                <i className="fa-solid fa-swords mr-2 text-[#00FF88]"></i>
+                Battle Performance
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard
+                  label="Win Rate"
+                  value={`${s.win_rate}%`}
+                  color="#00FF88"
+                  barPercent={Number(s.win_rate)}
+                />
+                <StatCard
+                  label="Matches"
+                  value={s.total_matches}
+                  color="#FFFFFF"
+                  subtext={`${s.wins} Won · ${s.losses} Lost`}
+                  barPercent={winPct}
+                />
+                <StatCard
+                  label="Monsters Killed"
+                  value={s.total_kills}
+                  color="#FF6B6B"
+                />
+                <StatCard
+                  label="Total XP"
+                  value={Number(s.total_xp_earned).toLocaleString()}
+                  color="#A78BFA"
+                />
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+            </section>
+          )}
 
-      {/* Materials */}
-      {materials && (
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">💎 Materials & NFTs</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {Object.entries(materials as Record<string, number>)
-              .filter(([, v]) => Number(v) > 0)
-              .map(([k, v]) => (
-                <div key={k} className="bg-gray-800 rounded-lg p-3 text-center">
-                  <div className="text-lg font-bold text-purple-400">{Number(v).toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">{MATERIAL_NAMES[k] || k.toUpperCase()}</div>
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Radar Chart */}
+            <div className="bg-[#0D1215] border border-[#1E2529] rounded-2xl p-5 shadow-card">
+              <h3 className="text-base font-bold text-white mb-4">Class Mastery</h3>
+              <RadarChart stats={radar as { might_pct: number; vitality_pct: number; spirit_pct: number; precision_pct: number; lethality_pct: number; nexus_pct: number } | null} />
+            </div>
+
+            {/* Combat Stats */}
+            {combat && (
+              <div className="bg-[#0D1215] border border-[#1E2529] rounded-2xl p-5 shadow-card">
+                <h3 className="text-base font-bold text-white mb-4">Peak Combat Stats</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Max Damage', value: (combat as Record<string, number>).max_damage, color: '#FF6B6B', icon: '⚡' },
+                    { label: 'Max Block', value: (combat as Record<string, number>).max_block, color: '#00FF88', icon: '🛡️' },
+                    { label: 'Max Heal', value: (combat as Record<string, number>).max_heal, color: '#A78BFA', icon: '💚' },
+                  ].map(({ label, value, color, icon }) => {
+                    const max = Math.max((combat as Record<string, number>).max_damage, (combat as Record<string, number>).max_block, (combat as Record<string, number>).max_heal, 1);
+                    return (
+                      <div key={label}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-[#A0AEC0] font-bold">{icon} {label}</span>
+                          <span className="font-bold" style={{ color }}>{value.toLocaleString()}</span>
+                        </div>
+                        <div className="w-full h-2 bg-[#1A1A1A] rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${(value / max) * 100}%`, backgroundColor: color, boxShadow: `0 0 8px ${color}66` }}></div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            {nfts > 0 && (
-              <div className="bg-gray-800 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-yellow-400">{nfts}</div>
-                <div className="text-xs text-gray-400">NFTs</div>
               </div>
             )}
           </div>
-        </section>
-      )}
 
-      {/* Match History */}
-      {history && (history as Array<Record<string, unknown>>).length > 0 && (
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">📜 Recent Matches</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead><tr className="text-gray-400 border-b border-gray-800">
-                <th className="py-2 px-2">Date</th><th className="py-2 px-2">Result</th>
-                <th className="py-2 px-2 text-right">Kills</th><th className="py-2 px-2 text-right">XP</th>
-                <th className="py-2 px-2 text-right">Level</th>
-              </tr></thead>
-              <tbody>
-                {(history as Array<Record<string, unknown>>).map((m, i) => (
-                  <tr key={i} className="border-b border-gray-800/50">
-                    <td className="py-2 px-2 text-gray-400">{m.timestamp ? new Date(m.timestamp as string).toLocaleDateString() : '-'}</td>
-                    <td className="py-2 px-2">
-                      <span className={`px-2 py-1 rounded text-xs font-bold ${m.match_result === 'Win' ? 'bg-green-900 text-green-300' : m.match_result === 'Lose' ? 'bg-red-900 text-red-300' : 'bg-yellow-900 text-yellow-300'}`}>
-                        {m.match_result as string}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-right">{Number(m.monsters_killed)}</td>
-                    <td className="py-2 px-2 text-right text-purple-400">{Number(m.xp_earned).toLocaleString()}</td>
-                    <td className="py-2 px-2 text-right">{Number(m.level)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Nexus Stats */}
+          <NexusStats nexus={nexus as { nexus_total: number; nexus_wins: number; nexus_losses: number; nexus_win_rate: number; nexus_avg_kills: number } | null} />
+
+          {/* Match History */}
+          <MatchHistory matches={(history || []) as Array<{ timestamp?: string; match_result?: string; monsters_killed: number; xp_earned: number; level: number }>} />
+        </div>
+
+        {/* Side Column (1/3) */}
+        <div className="space-y-6 md:space-y-8">
+          {/* Build Identity */}
+          <BuildIdentity
+            dominantRole={dominantRole as { primary: { name: string; icon: string; value: number }; secondary: { name: string; icon: string; value: number }; stats: { peak_damage: number; peak_block: number; peak_heal: number } } | null}
+            winStreak={winStreak as { bestStreak: number; currentStreak: number } | null}
+          />
+
+          {/* Equipment */}
+          <EquipmentLoadout equipment={equipment as Record<string, string | null> | null} />
+
+          {/* Materials & NFTs */}
+          <MaterialsNFTs materials={materials as Record<string, number> | null} nfts={nfts} />
+
+          {/* Planet Stats */}
+          <PlanetStats planets={planets as { total_planets: number; total_structures: number; total_fds_earned: number } | null} />
+
+          {/* CTA */}
+          <section className="text-center py-6">
+            <div className="bg-gradient-to-r from-[#00FF88]/10 to-transparent border border-[#00FF88]/20 rounded-xl p-6">
+              <p className="text-[#B8C5D0] mb-4">Want stats like these?</p>
+              <a href="https://freedom.world" target="_blank" rel="noopener noreferrer"
+                className="inline-block px-8 py-3 bg-[#00FF88] text-black rounded-xl text-lg font-bold shadow-[0_4px_12px_rgba(0,255,136,0.4)] hover:bg-[#00FFB8] transition-all transform hover:-translate-y-0.5">
+                Join Freedom World
+              </a>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="mt-12 pt-8 border-t border-[#1E2529] text-center md:text-left">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div>
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+              <div className="w-6 h-6 rounded bg-gradient-to-br from-[#00FF88] to-green-600 flex items-center justify-center text-black font-bold text-xs">F</div>
+              <span className="font-bold text-white text-sm tracking-wide">FREEDOM WORLD</span>
+            </div>
+            <p className="text-xs text-[#A0AEC0]">© 2024 The Scape Game. All rights reserved.</p>
           </div>
-        </section>
-      )}
-
-      {/* Planet Stats */}
-      {planets && Number((planets as Record<string, number>).total_planets) > 0 && (
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">🪐 Planet Stats</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <StatCard label="Planets" value={Number((planets as Record<string, number>).total_planets)} icon="🌍" />
-            <StatCard label="Structures" value={Number((planets as Record<string, number>).total_structures)} icon="🏗️" />
-            <StatCard label="FDS Earned" value={Number((planets as Record<string, number>).total_fds_earned).toFixed(2)} icon="💰" />
+          <div className="flex gap-6 text-sm text-[#B8C5D0]">
+            <a href="https://freedom.world" className="hover:text-[#00FF88] transition-colors">Freedom World</a>
+            <a href="#" className="hover:text-[#00FF88] transition-colors">Support</a>
           </div>
-        </section>
-      )}
-
-      {/* CTA */}
-      <section className="text-center py-8">
-        <p className="text-gray-400 mb-4">Want stats like these?</p>
-        <a href="https://freedom.world" target="_blank" rel="noopener noreferrer"
-          className="inline-block px-8 py-3 bg-purple-600 hover:bg-purple-500 rounded-xl text-lg font-bold transition-colors">
-          Join Freedom World
-        </a>
-      </section>
-    </div>
+        </div>
+      </footer>
+    </>
   );
 }
