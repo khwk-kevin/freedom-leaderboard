@@ -36,6 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PlayerPage({ params }: Props) {
   const { fdvId } = await params;
   const id = Number(fdvId);
+  if (isNaN(id)) notFound();
   const player = await getPlayerInfo(id);
   if (!player) notFound();
 

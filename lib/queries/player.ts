@@ -251,11 +251,11 @@ export async function getPlayerPercentiles(fdvId: number) {
     ranked AS (
       SELECT
         player_fdv_id,
-        ROUND(PERCENT_RANK() OVER (ORDER BY win_rate) * 100, 1) as win_rate_pct,
-        ROUND(PERCENT_RANK() OVER (ORDER BY nexus_win_rate) * 100, 1) as nexus_pct,
-        ROUND(PERCENT_RANK() OVER (ORDER BY total_kills) * 100, 1) as kills_pct,
-        ROUND(PERCENT_RANK() OVER (ORDER BY avg_kills) * 100, 1) as avg_kills_pct,
-        ROUND(PERCENT_RANK() OVER (ORDER BY total_nfts) * 100, 1) as nfts_pct
+        ROUND((PERCENT_RANK() OVER (ORDER BY win_rate) * 100)::numeric, 1) as win_rate_pct,
+        ROUND((PERCENT_RANK() OVER (ORDER BY nexus_win_rate) * 100)::numeric, 1) as nexus_pct,
+        ROUND((PERCENT_RANK() OVER (ORDER BY total_kills) * 100)::numeric, 1) as kills_pct,
+        ROUND((PERCENT_RANK() OVER (ORDER BY avg_kills) * 100)::numeric, 1) as avg_kills_pct,
+        ROUND((PERCENT_RANK() OVER (ORDER BY total_nfts) * 100)::numeric, 1) as nfts_pct
       FROM player_agg
     )
     SELECT * FROM ranked WHERE player_fdv_id = ${fdvId}
@@ -339,7 +339,7 @@ export async function getCombatRatingPercentile(fdvId: number) {
     ),
     ranked AS (
       SELECT player_fdv_id, rating,
-        ROUND(PERCENT_RANK() OVER (ORDER BY rating) * 100, 1) as percentile
+        ROUND((PERCENT_RANK() OVER (ORDER BY rating) * 100)::numeric, 1) as percentile
       FROM all_ratings
     )
     SELECT percentile FROM ranked WHERE player_fdv_id = ${fdvId}
