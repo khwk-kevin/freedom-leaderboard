@@ -35,6 +35,21 @@ async function getLeaderboardData(cat: string, time: TF) {
   }
 }
 
+function TabButton({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap"
+      style={active
+        ? { background: '#00FF88', color: '#090D0F', boxShadow: '0 0 12px rgba(0, 255, 136, 0.3)' }
+        : { background: '#1A1A2E', color: '#7A8A99', border: '1px solid #1E2529' }
+      }
+    >
+      {children}
+    </a>
+  );
+}
+
 export default async function LeaderboardsPage({ searchParams }: { searchParams: Promise<{ cat?: string; time?: string }> }) {
   const params = await searchParams;
   const cat = params.cat || 'kills';
@@ -44,51 +59,49 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
   const data = await getLeaderboardData(cat, time);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-black mb-2">🏆 Leaderboards</h1>
-        <p style={{ color: '#7A8A99' }}>See who dominates the Freedom World</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">Leaderboard</h1>
+          <p className="text-sm mt-1" style={{ color: '#7A8A99' }}>See who dominates Freedom World</p>
+        </div>
+        <Suspense><TimeFilter /></Suspense>
       </div>
 
-      <Suspense><TimeFilter /></Suspense>
+      {/* Category tabs */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#7A8A99' }}>The Scape</h2>
+          <div className="flex gap-2 flex-wrap">
+            {scapeTabs.map(t => (
+              <TabButton key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`} active={cat === t.key}>
+                {t.label}
+              </TabButton>
+            ))}
+          </div>
+        </div>
 
-      {/* Scape tabs */}
-      <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: '#B8C5D0' }}>The Scape</h2>
-        <div className="flex gap-2 flex-wrap">
-          {scapeTabs.map(t => (
-            <a key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={cat === t.key
-                ? { background: '#00FF88', color: '#000000', boxShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
-                : { background: '#1A1A1A', color: '#7A8A99', border: '1px solid #1E2529' }
-              }>
-              {t.label}
-            </a>
-          ))}
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#7A8A99' }}>Planets</h2>
+          <div className="flex gap-2 flex-wrap">
+            {planetTabs.map(t => (
+              <TabButton key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`} active={cat === t.key}>
+                {t.label}
+              </TabButton>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Planet tabs */}
-      <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: '#B8C5D0' }}>Planets</h2>
-        <div className="flex gap-2 flex-wrap">
-          {planetTabs.map(t => (
-            <a key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={cat === t.key
-                ? { background: '#00FF88', color: '#000000', boxShadow: '0 0 10px rgba(0, 255, 136, 0.3)' }
-                : { background: '#1A1A1A', color: '#7A8A99', border: '1px solid #1E2529' }
-              }>
-              {t.label}
-            </a>
-          ))}
+      {/* Leaderboard content */}
+      <div className="card !p-0 overflow-hidden">
+        {/* Active category header */}
+        <div className="px-6 pt-5 pb-2">
+          <h2 className="text-lg font-bold text-white">{currentTab.label}</h2>
+          <p className="text-xs mt-0.5" style={{ color: '#7A8A99' }}>Ranked by {currentTab.statLabel}</p>
         </div>
-      </div>
 
-      {/* Table */}
-      <div className="card">
-        <h2 className="text-xl font-bold mb-4">{currentTab.label}</h2>
         <LeaderboardTable entries={data} statLabel={currentTab.statLabel} />
       </div>
     </div>
