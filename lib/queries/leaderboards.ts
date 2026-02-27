@@ -1,4 +1,4 @@
-import { db, sql as neonSql } from '../db';
+import { db, sql as neonSql, rawQuery } from '../db';
 import { gameMatchResulted, gameMatchStarted, users, planetStructureBuilt } from '../schema';
 import { sql, desc, and, gte, count, sum, max } from 'drizzle-orm';
 
@@ -83,7 +83,7 @@ export async function getTopPlayersByWins(timeFilter: TimeFilter = 'all-time') {
 
 export async function getTopPlayersByWinRate(timeFilter: TimeFilter = 'all-time', minMatches: number = 50) {
   const tf = timeFilterSQL(timeFilter, 'AND');
-  const rows = await neonSql(
+  const rows = await rawQuery(
     `SELECT 
       u.fdv_id,
       u.avatar_name,
@@ -104,7 +104,7 @@ export async function getTopPlayersByWinRate(timeFilter: TimeFilter = 'all-time'
 
 export async function getTopPlayersByMaterials(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql(
+  const rows = await rawQuery(
     `SELECT 
       u.fdv_id, u.avatar_name,
       (COALESCE(SUM(gmr.received_materials_fds::numeric),0) + COALESCE(SUM(gmr.received_materials_vsa),0) +
@@ -144,7 +144,7 @@ export async function getMostActivePlayers(timeFilter: TimeFilter = 'all-time') 
 
 export async function getTopEmpireBuilders(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql(
+  const rows = await rawQuery(
     `SELECT fdv_user_id, COUNT(*)::int as total_structures
      FROM web_freedom_planet_prod.planet_structure_built ${tf}
      GROUP BY fdv_user_id ORDER BY total_structures DESC LIMIT 50`
@@ -154,7 +154,7 @@ export async function getTopEmpireBuilders(timeFilter: TimeFilter = 'all-time') 
 
 export async function getTopPlanetLords(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql(
+  const rows = await rawQuery(
     `SELECT fdv_user_id, COUNT(DISTINCT planet_id)::int as planet_count
      FROM web_freedom_planet_prod.planet_activated ${tf}
      GROUP BY fdv_user_id ORDER BY planet_count DESC LIMIT 50`
@@ -164,7 +164,7 @@ export async function getTopPlanetLords(timeFilter: TimeFilter = 'all-time') {
 
 export async function getTopEarners(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql(
+  const rows = await rawQuery(
     `SELECT fdv_user_id, SUM(claimed_amount::numeric)::numeric as total_fds
      FROM web_freedom_planet_prod.planet_reward_claimed ${tf}
      GROUP BY fdv_user_id ORDER BY total_fds DESC LIMIT 50`
