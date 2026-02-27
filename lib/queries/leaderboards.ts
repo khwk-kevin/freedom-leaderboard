@@ -83,8 +83,8 @@ export async function getTopPlayersByWins(timeFilter: TimeFilter = 'all-time') {
 
 export async function getTopPlayersByWinRate(timeFilter: TimeFilter = 'all-time', minMatches: number = 50) {
   const tf = timeFilterSQL(timeFilter, 'AND');
-  const rows = await neonSql`
-    SELECT 
+  const rows = await neonSql(
+    `SELECT 
       u.fdv_id,
       u.avatar_name,
       COUNT(*)::int as total_matches,
@@ -93,19 +93,19 @@ export async function getTopPlayersByWinRate(timeFilter: TimeFilter = 'all-time'
       MAX(gmr.player_level)::int as max_level
     FROM web_card_game_prod.game_match_resulted gmr
     INNER JOIN web_card_game_prod.users u ON u.fdv_id = gmr.player_fdv_id
-    WHERE 1=1 ${sql.raw(tf)}
+    WHERE 1=1 ${tf}
     GROUP BY u.fdv_id, u.avatar_name
     HAVING COUNT(*) >= ${minMatches}
     ORDER BY win_rate DESC
-    LIMIT 50
-  `;
+    LIMIT 50`
+  );
   return rows as Array<{ fdv_id: number; avatar_name: string; total_matches: number; wins: number; win_rate: number; max_level: number }>;
 }
 
 export async function getTopPlayersByMaterials(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql`
-    SELECT 
+  const rows = await neonSql(
+    `SELECT 
       u.fdv_id, u.avatar_name,
       (COALESCE(SUM(gmr.received_materials_fds::numeric),0) + COALESCE(SUM(gmr.received_materials_vsa),0) +
        COALESCE(SUM(gmr.received_materials_admt),0) + COALESCE(SUM(gmr.received_materials_aths),0) +
@@ -117,11 +117,11 @@ export async function getTopPlayersByMaterials(timeFilter: TimeFilter = 'all-tim
       MAX(gmr.player_level)::int as max_level
     FROM web_card_game_prod.game_match_resulted gmr
     INNER JOIN web_card_game_prod.users u ON u.fdv_id = gmr.player_fdv_id
-    ${sql.raw(tf)}
+    ${tf}
     GROUP BY u.fdv_id, u.avatar_name
     ORDER BY total_materials DESC
-    LIMIT 50
-  `;
+    LIMIT 50`
+  );
   return rows as Array<{ fdv_id: number; avatar_name: string; total_materials: number; max_level: number }>;
 }
 
@@ -144,31 +144,31 @@ export async function getMostActivePlayers(timeFilter: TimeFilter = 'all-time') 
 
 export async function getTopEmpireBuilders(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql`
-    SELECT fdv_user_id, COUNT(*)::int as total_structures
-    FROM web_freedom_planet_prod.planet_structure_built ${sql.raw(tf)}
-    GROUP BY fdv_user_id ORDER BY total_structures DESC LIMIT 50
-  `;
+  const rows = await neonSql(
+    `SELECT fdv_user_id, COUNT(*)::int as total_structures
+     FROM web_freedom_planet_prod.planet_structure_built ${tf}
+     GROUP BY fdv_user_id ORDER BY total_structures DESC LIMIT 50`
+  );
   return rows as Array<{ fdv_user_id: number; total_structures: number }>;
 }
 
 export async function getTopPlanetLords(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql`
-    SELECT fdv_user_id, COUNT(DISTINCT planet_id)::int as planet_count
-    FROM web_freedom_planet_prod.planet_activated ${sql.raw(tf)}
-    GROUP BY fdv_user_id ORDER BY planet_count DESC LIMIT 50
-  `;
+  const rows = await neonSql(
+    `SELECT fdv_user_id, COUNT(DISTINCT planet_id)::int as planet_count
+     FROM web_freedom_planet_prod.planet_activated ${tf}
+     GROUP BY fdv_user_id ORDER BY planet_count DESC LIMIT 50`
+  );
   return rows as Array<{ fdv_user_id: number; planet_count: number }>;
 }
 
 export async function getTopEarners(timeFilter: TimeFilter = 'all-time') {
   const tf = timeFilterSQL(timeFilter, 'WHERE');
-  const rows = await neonSql`
-    SELECT fdv_user_id, SUM(claimed_amount::numeric)::numeric as total_fds
-    FROM web_freedom_planet_prod.planet_reward_claimed ${sql.raw(tf)}
-    GROUP BY fdv_user_id ORDER BY total_fds DESC LIMIT 50
-  `;
+  const rows = await neonSql(
+    `SELECT fdv_user_id, SUM(claimed_amount::numeric)::numeric as total_fds
+     FROM web_freedom_planet_prod.planet_reward_claimed ${tf}
+     GROUP BY fdv_user_id ORDER BY total_fds DESC LIMIT 50`
+  );
   return rows as Array<{ fdv_user_id: number; total_fds: number }>;
 }
 
