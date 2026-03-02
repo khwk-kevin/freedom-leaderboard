@@ -66,7 +66,16 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
           <h1 className="text-2xl font-black text-white tracking-tight">Leaderboard</h1>
           <p className="text-sm mt-1" style={{ color: '#7A8A99' }}>See who dominates Freedom World</p>
         </div>
-        <Suspense><TimeFilter /></Suspense>
+        <div className="flex items-center gap-3">
+          <a
+            href="/leaderboards/planets"
+            className="px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap"
+            style={{ background: 'linear-gradient(135deg, #1B1040, #0D1B2A)', color: '#00FFB3', border: '1px solid rgba(0, 255, 179, 0.2)', boxShadow: '0 0 12px rgba(0, 255, 136, 0.15)' }}
+          >
+            🪐 Planet Leaderboard
+          </a>
+          <Suspense><TimeFilter /></Suspense>
+        </div>
       </div>
 
       {/* Category tabs */}

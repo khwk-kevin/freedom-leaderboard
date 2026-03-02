@@ -42,6 +42,10 @@ export default function Sidebar() {
             <i className="fa-solid fa-trophy w-5 group-hover:text-[#00FF88] transition-colors"></i>
             <span className="font-medium text-sm">Leaderboards</span>
           </Link>
+          <Link href="/leaderboards/planets" className="flex items-center gap-3 px-3 py-3 pl-8 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
+            <i className="fa-solid fa-earth-americas w-5 group-hover:text-[#00FF88] transition-colors"></i>
+            <span className="font-medium text-sm">Planets</span>
+          </Link>
           <a href="https://freedom.world" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-3 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
             <i className="fa-solid fa-globe w-5 group-hover:text-[#00FF88] transition-colors"></i>
             <span className="font-medium text-sm">Freedom World</span>

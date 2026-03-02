@@ -1,0 +1,84 @@
+import { rawQuery } from '../db';
+
+export type TimeFilter = 'all-time' | 'month' | 'week' | 'today';
+
+function timeFilterSQL(filter: TimeFilter, col: string = 'timestamp', prefix: string = 'WHERE'): string {
+  if (filter === 'all-time') return '';
+  const clause = filter === 'today' ? `${col} >= CURRENT_DATE` :
+    filter === 'week' ? `${col} >= CURRENT_DATE - INTERVAL '7 days'` :
+    `${col} >= CURRENT_DATE - INTERVAL '1 month'`;
+  return prefix === 'AND' ? `AND ${clause}` : `WHERE ${clause}`;
+}
+
+export type PlanetStructureEntry = {
+  planet_id: string;
+  planet_name: string;
+  fdv_user_id: number;
+  total_structure: number;
+  total_food_structure: number;
+  total_industrial_structure: number;
+  last_updated: string;
+};
+
+export type FDSEarnerEntry = {
+  fdv_user_id: number;
+  total_fds: number;
+  claims: number;
+  planet_count: number;
+};
+
+/** Top planets ranked by total structures built (Population mode) */
+export async function getTopPlanetsByStructures(timeFilter: TimeFilter = 'all-time'): Promise<PlanetStructureEntry[]> {
+  const tf = timeFilterSQL(timeFilter, 'psb.timestamp', 'WHERE');
+  const rows = await rawQuery(`
+    SELECT DISTINCT ON (psb.planet_id)
+      psb.planet_id,
+      psb.planet_name,
+      psb.fdv_user_id::int,
+      psb.total_structure::int as total_structure,
+      COALESCE(psb.total_food_structure, 0)::int as total_food_structure,
+      COALESCE(psb.total_industrial_structure, 0)::int as total_industrial_structure,
+      psb.timestamp as last_updated
+    FROM web_freedom_planet_prod.planet_structure_built psb
+    ${tf}
+    ORDER BY psb.planet_id, psb.timestamp DESC
+  `);
+  // Sort by total_structure desc after dedup
+  return (rows as PlanetStructureEntry[])
+    .sort((a, b) => b.total_structure - a.total_structure)
+    .slice(0, 100);
+}
+
+/** Top users ranked by FDS earned (FDS mode) */
+export async function getTopUsersByFDS(timeFilter: TimeFilter = 'all-time'): Promise<FDSEarnerEntry[]> {
+  const tf = timeFilterSQL(timeFilter);
+  const rows = await rawQuery(`
+    SELECT 
+      prc.fdv_user_id::int,
+      SUM(prc.claimed_amount::numeric)::numeric as total_fds,
+      COUNT(*)::int as claims,
+      COALESCE((
+        SELECT COUNT(DISTINCT pa.planet_id)::int 
+        FROM web_freedom_planet_prod.planet_activated pa 
+        WHERE pa.fdv_user_id = prc.fdv_user_id
+      ), 0) as planet_count
+    FROM web_freedom_planet_prod.planet_reward_claimed prc
+    ${tf}
+    GROUP BY prc.fdv_user_id
+    ORDER BY total_fds DESC
+    LIMIT 100
+  `);
+  return rows as FDSEarnerEntry[];
+}
+
+/** Global planet stats */
+export async function getPlanetGlobalStats() {
+  const rows = await rawQuery(`
+    SELECT 
+      (SELECT COUNT(DISTINCT fdv_user_id)::int FROM web_freedom_planet_prod.planet_activated) as total_users,
+      (SELECT COUNT(DISTINCT planet_id)::int FROM web_freedom_planet_prod.planet_activated) as total_planets,
+      (SELECT COUNT(*)::int FROM web_freedom_planet_prod.planet_structure_built) as total_structures,
+      (SELECT COALESCE(SUM(claimed_amount::numeric), 0) FROM web_freedom_planet_prod.planet_reward_claimed) as total_fds_earned
+  `);
+  return rows[0] as { total_users: number; total_planets: number; total_structures: number; total_fds_earned: number };
+}
