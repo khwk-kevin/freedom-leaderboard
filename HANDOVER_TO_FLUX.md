@@ -215,7 +215,7 @@ These are complementary, not competing. The Player Hub reads event data; Flux's 
 |---|---------|--------|-------|
 | B-001 | Freedom World API global planets endpoint not confirmed (Kunny) | Blocks Flux's sync pipeline | Kevin → Kunny |
 | B-002 | Cognito token pattern for service-to-service not designed | Blocks sync auth | Atlas advisory |
-| B-003 | Replit SSH key authorization for Flux | Blocks Flux from deploying directly | Kevin → Replit |
+| ~~B-003~~ | ~~Replit SSH key~~ | RESOLVED — key at `/clawd/atlas/.ssh/id_ed25519` is on shared `/clawd` mount, accessible from freedom-squad container | N/A |
 | B-004 | Community auth model for dashboard (Phase 1 = URL param) | Dashboard currently unprotected | Flux decision |
 
 ---
