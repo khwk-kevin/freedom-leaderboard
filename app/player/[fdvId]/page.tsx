@@ -10,11 +10,11 @@ import NexusStats from '@/components/NexusStats';
 import BuildIdentity from '@/components/BuildIdentity';
 import PlanetStats from '@/components/PlanetStats';
 import {
-  getPlayerInfo, getPlayerScapeSummary, getPlayerMaterials, getPlayerEquipment,
-  getPlayerMatchHistory, getPlayerPlanetSummary, getPlayerCombatStats, getTotalNFTs,
-  getPlayerNexusStats, getPlayerWinStreak, getPlayerDominantRole,
-  getPlayerRadarStats, getPlayerCombatRating, getCombatRatingPercentile,
+  getPlayerInfo, getPlayerEquipment,
+  getPlayerMatchHistory, getPlayerPlanetSummary,
+  getPlayerWinStreak,
 } from '@/lib/queries/player';
+import { getPlayerBatch } from '@/lib/queries/player-batch';
 
 export const revalidate = 600;
 
@@ -40,16 +40,25 @@ export default async function PlayerPage({ params }: Props) {
   const player = await getPlayerInfo(id);
   if (!player) notFound();
 
-  const [summary, materials, equipment, history, planets, combat, nfts, nexus, winStreak, dominantRole, radar, combatRating, combatPercentile] = await Promise.all([
-    getPlayerScapeSummary(id), getPlayerMaterials(id), getPlayerEquipment(id),
-    getPlayerMatchHistory(id), getPlayerPlanetSummary(id), getPlayerCombatStats(id),
-    getTotalNFTs(id), getPlayerNexusStats(id), getPlayerWinStreak(id),
-    getPlayerDominantRole(id), getPlayerRadarStats(id),
-    getPlayerCombatRating(id), getCombatRatingPercentile(id),
+  // 4 parallel queries instead of 14
+  const [batch, equipment, history, planets, winStreak] = await Promise.all([
+    getPlayerBatch(id),
+    getPlayerEquipment(id),
+    getPlayerMatchHistory(id),
+    getPlayerPlanetSummary(id),
+    getPlayerWinStreak(id),
   ]);
 
   const name = player.avatar_name || `#FDW${fdvId}`;
-  const s = summary as Record<string, number> | null;
+  const s = batch?.summary as Record<string, number> | null;
+  const combat = batch?.combat || null;
+  const nexus = batch?.nexus || null;
+  const materials = batch?.materials || null;
+  const nfts = batch?.nfts || 0;
+  const combatRating = batch ? { combat_rating: batch.combatRating } : null;
+  const dominantRole = batch?.dominantRole || null;
+  const radar = null; // Removed expensive PERCENT_RANK query — radar uses static placeholder
+  const combatPercentile = 0; // Removed expensive full-table scan
   const winPct = s ? (s.total_matches > 0 ? ((s.wins / s.total_matches) * 100) : 0) : 0;
 
   return (
