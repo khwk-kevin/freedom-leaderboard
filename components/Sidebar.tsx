@@ -1,32 +1,23 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import SearchBar from './SearchBar';
 
+const navLinks = [
+  { href: '/', label: 'Player Hub', icon: 'fa-user-astronaut' },
+  { href: '/leaderboards/scape', label: 'Scape Leaderboards', icon: 'fa-trophy' },
+  { href: '/leaderboards/planets', label: 'Planet Leaderboards', icon: 'fa-earth-americas' },
+];
+
 export default function Sidebar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
-      {/* Mobile Navigation Trigger */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#0D1215] border-b border-[#1E2529] px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image src="/freedom-logo.png" alt="Freedom World" width={120} height={32} className="h-8 w-auto" />
-        </div>
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white p-2">
-          <i className={`fa-solid ${mobileOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
-        </button>
-      </div>
-
-      {/* Mobile backdrop */}
-      {mobileOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/60 z-30" onClick={() => setMobileOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`${mobileOpen ? 'flex' : 'hidden'} md:flex flex-col w-[280px] md:w-72 bg-[#0D1215] border-r border-[#1E2529] fixed h-full z-40 overflow-y-auto top-[60px] md:top-0`}>
+      {/* Sidebar — desktop only */}
+      <aside className="hidden md:flex flex-col w-72 bg-[#0D1215] border-r border-[#1E2529] fixed h-full z-40 overflow-y-auto top-0">
         {/* Logo */}
         <div className="p-6 flex items-center justify-center mb-4">
           <Image src="/freedom-logo.png" alt="Freedom World" width={180} height={48} className="h-12 w-auto" priority />
@@ -39,19 +30,26 @@ export default function Sidebar() {
 
         {/* Nav Links */}
         <nav className="flex-1 px-3 space-y-1">
-          <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20">
-            <i className="fa-solid fa-user-astronaut w-5"></i>
-            <span className="font-medium text-sm">Player Hub</span>
-          </Link>
-          <Link href="/leaderboards" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
-            <i className="fa-solid fa-trophy w-5 group-hover:text-[#00FF88] transition-colors"></i>
-            <span className="font-medium text-sm">Leaderboards</span>
-          </Link>
-          <Link href="/leaderboards/planets" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-3 pl-8 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
-            <i className="fa-solid fa-earth-americas w-5 group-hover:text-[#00FF88] transition-colors"></i>
-            <span className="font-medium text-sm">Planets</span>
-          </Link>
-          <a href="https://freedom.world" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-3 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
+          {navLinks.map(link => {
+            const active = link.href === '/'
+              ? pathname === '/' || pathname.startsWith('/player/')
+              : pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
+                  active
+                    ? 'bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20'
+                    : 'text-[#B8C5D0] hover:bg-white/5 hover:text-white border border-transparent'
+                }`}
+              >
+                <i className={`fa-solid ${link.icon} w-5 ${active ? '' : 'group-hover:text-[#00FF88]'} transition-colors`}></i>
+                <span className="font-medium text-sm">{link.label}</span>
+              </Link>
+            );
+          })}
+          <a href="https://freedom.world" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-3 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group border border-transparent">
             <i className="fa-solid fa-globe w-5 group-hover:text-[#00FF88] transition-colors"></i>
             <span className="font-medium text-sm">Freedom World</span>
           </a>
@@ -71,3 +69,4 @@ export default function Sidebar() {
     </>
   );
 }
+

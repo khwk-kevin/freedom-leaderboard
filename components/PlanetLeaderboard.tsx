@@ -84,23 +84,23 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <span>🪐</span> Planet Leaderboard
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <span>🪐</span> Planets
           </h1>
-          <p className="text-sm mt-1" style={{ color: '#7A8A99' }}>
-            {stats.total_planets} planets · {stats.total_users} explorers · {formatNumber(stats.total_structures)} structures built
+          <p className="text-xs sm:text-sm mt-0.5" style={{ color: '#7A8A99' }}>
+            {stats.total_planets} planets · {stats.total_users} explorers · {formatNumber(stats.total_structures)} structures
           </p>
         </div>
 
         {/* Time filter */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {timeOptions.map(opt => (
             <button
               key={opt.value}
               onClick={() => setTime(opt.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              className={`px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-colors whitespace-nowrap shrink-0 ${
                 time === opt.value
                   ? 'bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20'
                   : 'text-[#A0AEC0] hover:text-white hover:bg-white/5 border border-transparent'
@@ -112,8 +112,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
         </div>
       </div>
 
-      {/* Mode Toggle */}
-      <div className="flex justify-center">
+      {/* Sticky Mode Toggle */}
+      <div className="sticky top-0 z-20 -mx-4 px-4 py-2 md:mx-0 md:px-0 flex justify-center" style={{ background: 'rgba(10, 14, 16, 0.95)', backdropFilter: 'blur(8px)' }}>
         <div
           className="inline-flex rounded-full p-1 gap-1"
           style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}

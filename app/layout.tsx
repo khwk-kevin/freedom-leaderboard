@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import Sidebar from '@/components/Sidebar';
+import BottomNav from '@/components/BottomNav';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -26,9 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col md:flex-row overflow-x-hidden" style={{ background: '#0A0E10', color: '#FFFFFF', fontFamily: "var(--font-inter), 'Inter', sans-serif" }} suppressHydrationWarning>
         <Sidebar />
-        <main className="flex-1 md:pl-72 p-4 md:p-8 pt-20 md:pt-8 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 md:pl-72 p-4 md:p-8 pt-4 md:pt-8 pb-20 md:pb-8 max-w-[1600px] mx-auto w-full">
           {children}
         </main>
+        <BottomNav />
         <Script src="https://cdn.plot.ly/plotly-3.1.1.min.js" strategy="afterInteractive" />
       </body>
     </html>
