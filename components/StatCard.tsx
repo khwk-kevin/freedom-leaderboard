@@ -9,10 +9,10 @@ type Props = {
 
 export default function StatCard({ label, value, color = '#00FF88', barPercent, subtext, icon }: Props) {
   return (
-    <div className="bg-[#0D1215] border border-[#1E2529] p-4 rounded-2xl hover:border-[#2A2A2A] transition-colors group">
-      <div className="text-xs text-[#A0AEC0] font-bold uppercase tracking-wider mb-2">{icon && <span className="mr-1">{icon}</span>}{label}</div>
+    <div className="bg-[#0D1215] border border-[#1E2529] p-3 sm:p-4 rounded-xl sm:rounded-2xl hover:border-[#2A2A2A] transition-colors group">
+      <div className="text-[10px] sm:text-xs text-[#A0AEC0] font-bold uppercase tracking-wider mb-1 sm:mb-2">{icon && <span className="mr-1">{icon}</span>}{label}</div>
       <div
-        className="text-2xl font-bold mb-1"
+        className="text-xl sm:text-2xl font-bold mb-0.5"
         style={{ color, textShadow: `0 0 8px ${color}66` }}
       >
         {typeof value === 'number' ? value.toLocaleString() : value}
