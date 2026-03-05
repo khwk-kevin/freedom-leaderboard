@@ -9,55 +9,81 @@ type Props = {
   metrics: { label: string; value: string; color: string }[];
   maxStat: number;
   stat: number;
+  foodStat?: number;
+  industrialStat?: number;
 };
 
-export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, metrics, maxStat, stat }: Props) {
-  const progress = maxStat > 0 ? Math.max(5, (stat / maxStat) * 100) : 5;
+export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, metrics, maxStat, stat, foodStat, industrialStat }: Props) {
+  const totalWidth = maxStat > 0 ? Math.max(5, (stat / maxStat) * 100) : 5;
+
+  // Split bar: food (green) + industrial (orange)
+  const hasSplit = foodStat !== undefined && industrialStat !== undefined && stat > 0;
+  const foodPct = hasSplit ? (foodStat / stat) * totalWidth : 0;
+  const industrialPct = hasSplit ? (industrialStat / stat) * totalWidth : 0;
+  const isFDS = metrics[0]?.color === '#00FFB3';
 
   return (
     <Link
       href={`/leaderboards/planets/${planetId}`}
-      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] border-b cursor-pointer block"
+      className="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 transition-colors hover:bg-white/[0.03] border-b cursor-pointer block"
       style={{ borderColor: 'rgba(255,255,255,0.04)' }}
     >
       {/* Rank */}
-      <div className="shrink-0 w-10 sm:w-12 text-center">
-        <span className="text-white font-black text-sm sm:text-base">#{rank}</span>
+      <div className="shrink-0 w-8 sm:w-10 text-center">
+        <span className="text-white font-black text-xs sm:text-sm">#{rank}</span>
       </div>
 
       {/* Planet avatar */}
-      <PlanetAvatar planetId={planetId} planetName={planetName} size={38} />
+      <PlanetAvatar planetId={planetId} planetName={planetName} size={36} />
 
       {/* Name + progress */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-baseline justify-between gap-2">
+        <div className="flex items-baseline justify-between gap-1.5">
           <div className="min-w-0">
-            <p className="text-white font-semibold text-sm truncate">{planetName}</p>
-            <p className="text-[11px] truncate" style={{ color: '#7D8598' }}>{ownerLabel}</p>
+            <p className="text-white font-semibold text-xs sm:text-sm truncate">{planetName}</p>
+            <p className="text-[10px] sm:text-[11px] truncate" style={{ color: '#7D8598' }}>{ownerLabel}</p>
           </div>
           <div className="shrink-0 text-right">
             {metrics.map((m, i) => (
-              <div key={i} className="flex items-center gap-2 justify-end">
-                <span className="text-[10px]" style={{ color: '#7D8598' }}>{m.label}</span>
-                <span className="text-xs font-bold" style={{ color: m.color }}>{m.value}</span>
+              <div key={i} className="flex items-center gap-1.5 justify-end">
+                <span className="text-[9px] sm:text-[10px]" style={{ color: '#7D8598' }}>{m.label}</span>
+                <span className="text-[11px] sm:text-xs font-bold" style={{ color: m.color }}>{m.value}</span>
               </div>
             ))}
           </div>
         </div>
-        {/* Progress bar */}
-        <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <div
-            className="h-full rounded-full"
-            style={{
-              width: `${progress}%`,
-              background: metrics[0]?.color === '#FF6B6B'
-                ? 'linear-gradient(90deg, #FF6B6B, #FF8888)'
-                : 'linear-gradient(90deg, #00FF88, #00FFB3)',
-              boxShadow: metrics[0]?.color === '#FF6B6B'
-                ? '0 0 6px rgba(255, 107, 107, 0.4)'
-                : '0 0 6px rgba(0, 255, 136, 0.4)',
-            }}
-          />
+        {/* Progress bar — split food/industrial for population mode */}
+        <div className="mt-1 h-1.5 rounded-full overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          {hasSplit ? (
+            <>
+              <div
+                className="h-full"
+                style={{
+                  width: `${foodPct}%`,
+                  background: '#22C55E',
+                  borderRadius: industrialPct > 0 ? '9999px 0 0 9999px' : '9999px',
+                }}
+              />
+              <div
+                className="h-full"
+                style={{
+                  width: `${industrialPct}%`,
+                  background: '#F97316',
+                  borderRadius: foodPct > 0 ? '0 9999px 9999px 0' : '9999px',
+                }}
+              />
+            </>
+          ) : (
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${totalWidth}%`,
+                background: isFDS
+                  ? 'linear-gradient(90deg, #00FF88, #00FFB3)'
+                  : 'linear-gradient(90deg, #FF6B6B, #FF8888)',
+              }}
+            />
+          )}
         </div>
       </div>
     </Link>

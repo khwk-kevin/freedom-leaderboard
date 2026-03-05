@@ -61,6 +61,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
         name: e.planet_name || 'Unknown Planet',
         owner: e.owner_name || `#FDW${e.fdv_user_id}`,
         stat: e.total_structure,
+        foodStat: e.total_food_structure,
+        industrialStat: e.total_industrial_structure,
         metrics: [
           { label: 'Structures', value: formatNumber(e.total_structure), color: '#FF6B6B' },
           { label: 'Food / Industrial', value: `${e.total_food_structure} / ${e.total_industrial_structure}`, color: '#FF8888' },
@@ -71,6 +73,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
         name: e.owner_name || `#FDW${e.fdv_user_id}`,
         owner: e.top_planet_name ? `${e.top_planet_name} + ${e.planet_count - 1} more` : `${e.planet_count} planet${e.planet_count !== 1 ? 's' : ''}`,
         stat: Number(e.total_fds),
+        foodStat: undefined as number | undefined,
+        industrialStat: undefined as number | undefined,
         metrics: [
           { label: 'FDS Earned', value: formatFDS(Number(e.total_fds)), color: '#00FFB3' },
           { label: 'Claims', value: String(e.claims), color: '#00FF88' },
@@ -143,6 +147,14 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
         </div>
       </div>
 
+      {/* Legend for population mode */}
+      {mode === 'population' && (
+        <div className="flex items-center justify-center gap-4 text-[10px]">
+          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#22C55E' }} /> Food</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#F97316' }} /> Industrial</span>
+        </div>
+      )}
+
       {/* Loading overlay */}
       {loading && (
         <div className="text-center py-4">
@@ -197,6 +209,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
                 metrics={entry.metrics}
                 maxStat={maxStat}
                 stat={entry.stat}
+                foodStat={entry.foodStat}
+                industrialStat={entry.industrialStat}
               />
             ))}
           </div>
