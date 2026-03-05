@@ -24,7 +24,7 @@ function PodiumCard({ entry, rank, statLabel }: { entry: PodiumEntry; rank: 1 | 
   return (
     <Link href={`/player/${id}`} className="block group">
       <div
-        className={`relative flex flex-col items-center rounded-2xl border border-white/10 px-2 sm:px-4 py-4 sm:py-5 transition-all hover:border-white/20 hover:scale-[1.02] ${isFirst ? 'bg-[#14142E]/80 shadow-[0_0_30px_rgba(16,244,139,0.1)]' : 'bg-[#14142E]/50'}`}
+        className={`relative flex flex-col items-center rounded-xl sm:rounded-2xl border border-white/10 px-1.5 sm:px-3 py-3 sm:py-5 transition-all hover:border-white/20 hover:scale-[1.02] ${isFirst ? 'bg-[#14142E]/80 shadow-[0_0_30px_rgba(16,244,139,0.1)]' : 'bg-[#14142E]/50'}`}
         style={{ marginTop: isFirst ? 0 : 16 }}
       >
         {/* Avatar with ring and rank badge */}
@@ -45,7 +45,7 @@ function PodiumCard({ entry, rank, statLabel }: { entry: PodiumEntry; rank: 1 | 
         </div>
 
         {/* Name */}
-        <p className="text-white font-bold text-xs sm:text-sm text-center truncate w-full max-w-[100px] sm:max-w-[120px] group-hover:text-[#00FFB3] transition-colors">
+        <p className="text-white font-bold text-[11px] sm:text-sm text-center truncate w-full group-hover:text-[#00FFB3] transition-colors">
           {name}
         </p>
 
@@ -74,17 +74,17 @@ export default function Podium({ entries, statLabel }: { entries: PodiumEntry[];
   if (entries.length < 3) return null;
 
   return (
-    <div className="flex items-end justify-center gap-2 sm:gap-3 px-2 sm:px-4 py-4 sm:py-6">
+    <div className="grid grid-cols-3 gap-1.5 sm:gap-3 px-1 sm:px-4 py-4 sm:py-6 items-end">
       {/* 2nd place */}
-      <div className="flex-1 max-w-[130px] sm:max-w-[160px]">
+      <div>
         <PodiumCard entry={entries[1]} rank={2} statLabel={statLabel} />
       </div>
       {/* 1st place */}
-      <div className="flex-1 max-w-[140px] sm:max-w-[180px]">
+      <div>
         <PodiumCard entry={entries[0]} rank={1} statLabel={statLabel} />
       </div>
       {/* 3rd place */}
-      <div className="flex-1 max-w-[130px] sm:max-w-[160px]">
+      <div>
         <PodiumCard entry={entries[2]} rank={3} statLabel={statLabel} />
       </div>
     </div>
