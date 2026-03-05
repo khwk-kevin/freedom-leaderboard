@@ -1,5 +1,6 @@
 import LeaderboardTable from '@/components/LeaderboardTable';
 import { type TimeFilter as TF, getTopPlayersByXP, getTopPlayersByKills, getTopPlayersByWins, getTopPlayersByWinRate, getMostActivePlayers, getTopPlayersByMaterials } from '@/lib/queries/leaderboards';
+import { unstable_cache } from 'next/cache';
 
 export const revalidate = 300;
 
@@ -24,13 +25,16 @@ const timeOptions = [
 ];
 
 async function getData(cat: string, time: TF) {
+  const cachedQuery = (fn: () => Promise<unknown[]>) =>
+    unstable_cache(fn, [`scape-${cat}-${time}`], { revalidate: 300 })();
+
   switch (cat) {
-    case 'kills': return (await getTopPlayersByKills(time)).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: Number(e.total_kills) || 0, level: e.max_level }));
-    case 'xp': return (await getTopPlayersByXP(time)).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: Number(e.total_xp) || 0, level: e.max_level }));
-    case 'wins': return (await getTopPlayersByWins(time)).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: e.total_wins, level: e.max_level }));
-    case 'winrate': return (await getTopPlayersByWinRate(time)).map(e => ({ fdv_id: e.fdv_id, avatar_name: e.avatar_name, stat: `${e.win_rate}%`, level: e.max_level }));
-    case 'active': return (await getMostActivePlayers(time)).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: e.total_matches, level: e.max_level }));
-    case 'materials': return (await getTopPlayersByMaterials(time)).map(e => ({ fdv_id: e.fdv_id, avatar_name: e.avatar_name, stat: Number(e.total_materials) || 0, level: e.max_level }));
+    case 'kills': return ((await cachedQuery(() => getTopPlayersByKills(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: (e.fdv_id as number) ?? 0, avatar_name: e.avatar_name as string | null, stat: Number(e.total_kills) || 0, level: e.max_level as number }));
+    case 'xp': return ((await cachedQuery(() => getTopPlayersByXP(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: (e.fdv_id as number) ?? 0, avatar_name: e.avatar_name as string | null, stat: Number(e.total_xp) || 0, level: e.max_level as number }));
+    case 'wins': return ((await cachedQuery(() => getTopPlayersByWins(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: (e.fdv_id as number) ?? 0, avatar_name: e.avatar_name as string | null, stat: e.total_wins as number, level: e.max_level as number }));
+    case 'winrate': return ((await cachedQuery(() => getTopPlayersByWinRate(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: e.fdv_id as number, avatar_name: e.avatar_name as string | null, stat: `${e.win_rate}%`, level: e.max_level as number }));
+    case 'active': return ((await cachedQuery(() => getMostActivePlayers(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: (e.fdv_id as number) ?? 0, avatar_name: e.avatar_name as string | null, stat: e.total_matches as number, level: e.max_level as number }));
+    case 'materials': return ((await cachedQuery(() => getTopPlayersByMaterials(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: e.fdv_id as number, avatar_name: e.avatar_name as string | null, stat: Number(e.total_materials) || 0, level: e.max_level as number }));
     default: return [];
   }
 }

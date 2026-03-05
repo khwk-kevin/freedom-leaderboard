@@ -15,6 +15,7 @@ import {
   getPlayerWinStreak,
 } from '@/lib/queries/player';
 import { getPlayerBatch } from '@/lib/queries/player-batch';
+import { unstable_cache } from 'next/cache';
 
 export const revalidate = 600;
 
@@ -22,10 +23,10 @@ type Props = { params: Promise<{ fdvId: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { fdvId } = await params;
-  const [player, batch] = await Promise.all([
-    getPlayerInfo(Number(fdvId)),
-    getPlayerBatch(Number(fdvId)),
-  ]);
+  const id = Number(fdvId);
+  const cachedInfo = unstable_cache(() => getPlayerInfo(id), [`player-info-${id}`], { revalidate: 300 });
+  const cachedBatch = unstable_cache(() => getPlayerBatch(id), [`player-batch-${id}`], { revalidate: 300 });
+  const [player, batch] = await Promise.all([cachedInfo(), cachedBatch()]);
   if (!player) return { title: 'Player Not Found' };
   const name = player.avatar_name || `#FDW${fdvId}`;
   const s = batch?.summary;
@@ -43,13 +44,19 @@ export default async function PlayerPage({ params }: Props) {
   const player = await getPlayerInfo(id);
   if (!player) notFound();
 
-  // 4 parallel queries instead of 14
+  // Cached queries — results persist for 5 minutes
+  const cachedBatch = unstable_cache(() => getPlayerBatch(id), [`player-batch-${id}`], { revalidate: 300 });
+  const cachedEquipment = unstable_cache(() => getPlayerEquipment(id), [`player-equip-${id}`], { revalidate: 300 });
+  const cachedHistory = unstable_cache(() => getPlayerMatchHistory(id), [`player-history-${id}`], { revalidate: 300 });
+  const cachedPlanets = unstable_cache(() => getPlayerPlanetSummary(id), [`player-planets-${id}`], { revalidate: 300 });
+  const cachedStreak = unstable_cache(() => getPlayerWinStreak(id), [`player-streak-${id}`], { revalidate: 300 });
+
   const [batch, equipment, history, planets, winStreak] = await Promise.all([
-    getPlayerBatch(id),
-    getPlayerEquipment(id),
-    getPlayerMatchHistory(id),
-    getPlayerPlanetSummary(id),
-    getPlayerWinStreak(id),
+    cachedBatch(),
+    cachedEquipment(),
+    cachedHistory(),
+    cachedPlanets(),
+    cachedStreak(),
   ]);
 
   const name = player.avatar_name || `#FDW${fdvId}`;
