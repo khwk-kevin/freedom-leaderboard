@@ -56,6 +56,8 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
   const time = (params.time || 'all-time') as TF;
   const allTabs = [...scapeTabs, ...planetTabs];
   const currentTab = allTabs.find(t => t.key === cat) || scapeTabs[0];
+  const isScapeCat = scapeTabs.some(t => t.key === cat);
+  const isPlanetCat = planetTabs.some(t => t.key === cat);
   const data = await getLeaderboardData(cat, time);
 
   return (
@@ -63,52 +65,60 @@ export default async function LeaderboardsPage({ searchParams }: { searchParams:
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Leaderboard</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Leaderboards</h1>
           <p className="text-xs sm:text-sm mt-1" style={{ color: '#7A8A99' }}>See who dominates Freedom World</p>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <a
-            href="/leaderboards/planets"
-            className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all whitespace-nowrap"
-            style={{ background: 'linear-gradient(135deg, #1B1040, #0D1B2A)', color: '#00FFB3', border: '1px solid rgba(0, 255, 179, 0.2)', boxShadow: '0 0 12px rgba(0, 255, 136, 0.15)' }}
-          >
-            🪐 Planets
-          </a>
-          <Suspense><TimeFilter /></Suspense>
+        <Suspense><TimeFilter /></Suspense>
+      </div>
+
+      {/* Section: The Scape */}
+      <div className="rounded-2xl p-3 sm:p-4" style={{ background: isScapeCat ? 'rgba(0, 255, 136, 0.03)' : 'transparent', border: isScapeCat ? '1px solid rgba(0, 255, 136, 0.1)' : '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-base">⚔️</span>
+          <h2 className="text-sm sm:text-base font-bold text-white">The Scape</h2>
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full" style={{ background: '#1A1A2E', color: '#7A8A99' }}>PvP Arena</span>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:-mx-4 sm:px-4 md:mx-0 md:px-0 md:flex-wrap scrollbar-hide">
+          {scapeTabs.map(t => (
+            <TabButton key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`} active={cat === t.key}>
+              {t.label}
+            </TabButton>
+          ))}
         </div>
       </div>
 
-      {/* Category tabs */}
-      <div className="space-y-3">
-        <div>
-          <h2 className="text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#7A8A99' }}>The Scape</h2>
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap scrollbar-hide">
-            {scapeTabs.map(t => (
-              <TabButton key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`} active={cat === t.key}>
-                {t.label}
-              </TabButton>
-            ))}
-          </div>
+      {/* Section: Planets */}
+      <div className="rounded-2xl p-3 sm:p-4" style={{ background: isPlanetCat ? 'rgba(167, 139, 250, 0.03)' : 'transparent', border: isPlanetCat ? '1px solid rgba(167, 139, 250, 0.1)' : '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-base">🪐</span>
+          <h2 className="text-sm sm:text-base font-bold text-white">Planets</h2>
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full" style={{ background: '#1A1A2E', color: '#7A8A99' }}>Colony Building</span>
+          <a
+            href="/leaderboards/planets"
+            className="ml-auto text-[10px] sm:text-xs font-semibold whitespace-nowrap"
+            style={{ color: '#A78BFA' }}
+          >
+            View Planet Rankings →
+          </a>
         </div>
-
-        <div>
-          <h2 className="text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#7A8A99' }}>Planets</h2>
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap scrollbar-hide">
-            {planetTabs.map(t => (
-              <TabButton key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`} active={cat === t.key}>
-                {t.label}
-              </TabButton>
-            ))}
-          </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-3 px-3 sm:-mx-4 sm:px-4 md:mx-0 md:px-0 md:flex-wrap scrollbar-hide">
+          {planetTabs.map(t => (
+            <TabButton key={t.key} href={`/leaderboards?cat=${t.key}&time=${time}`} active={cat === t.key}>
+              {t.label}
+            </TabButton>
+          ))}
         </div>
       </div>
 
       {/* Leaderboard content */}
       <div className="card !p-0 overflow-hidden">
         {/* Active category header */}
-        <div className="px-6 pt-5 pb-2">
-          <h2 className="text-lg font-bold text-white">{currentTab.label}</h2>
-          <p className="text-xs mt-0.5" style={{ color: '#7A8A99' }}>Ranked by {currentTab.statLabel}</p>
+        <div className="flex items-center gap-2 px-4 sm:px-6 pt-4 sm:pt-5 pb-2">
+          <span className="text-lg">{isScapeCat ? '⚔️' : '🪐'}</span>
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-white">{currentTab.label}</h2>
+            <p className="text-[10px] sm:text-xs mt-0.5" style={{ color: '#7A8A99' }}>Ranked by {currentTab.statLabel} · {isScapeCat ? 'The Scape' : 'Planets'}</p>
+          </div>
         </div>
 
         <LeaderboardTable entries={data} statLabel={currentTab.statLabel} />
