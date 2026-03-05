@@ -24,8 +24,8 @@ type Props = { params: Promise<{ fdvId: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { fdvId } = await params;
   const id = Number(fdvId);
-  const cachedInfo = unstable_cache(() => getPlayerInfo(id), [`player-info-${id}`], { revalidate: 300 });
-  const cachedBatch = unstable_cache(() => getPlayerBatch(id), [`player-batch-${id}`], { revalidate: 300 });
+  const cachedInfo = unstable_cache(() => getPlayerInfo(id), [`player-info-${id}`], { revalidate: 600 });
+  const cachedBatch = unstable_cache(() => getPlayerBatch(id), [`player-batch-${id}`], { revalidate: 600 });
   const [player, batch] = await Promise.all([cachedInfo(), cachedBatch()]);
   if (!player) return { title: 'Player Not Found' };
   const name = player.avatar_name || `#FDW${fdvId}`;
@@ -45,11 +45,11 @@ export default async function PlayerPage({ params }: Props) {
   if (!player) notFound();
 
   // Cached queries — results persist for 5 minutes
-  const cachedBatch = unstable_cache(() => getPlayerBatch(id), [`player-batch-${id}`], { revalidate: 300 });
-  const cachedEquipment = unstable_cache(() => getPlayerEquipment(id), [`player-equip-${id}`], { revalidate: 300 });
-  const cachedHistory = unstable_cache(() => getPlayerMatchHistory(id), [`player-history-${id}`], { revalidate: 300 });
-  const cachedPlanets = unstable_cache(() => getPlayerPlanetSummary(id), [`player-planets-${id}`], { revalidate: 300 });
-  const cachedStreak = unstable_cache(() => getPlayerWinStreak(id), [`player-streak-${id}`], { revalidate: 300 });
+  const cachedBatch = unstable_cache(() => getPlayerBatch(id), [`player-batch-${id}`], { revalidate: 600 });
+  const cachedEquipment = unstable_cache(() => getPlayerEquipment(id), [`player-equip-${id}`], { revalidate: 600 });
+  const cachedHistory = unstable_cache(() => getPlayerMatchHistory(id), [`player-history-${id}`], { revalidate: 600 });
+  const cachedPlanets = unstable_cache(() => getPlayerPlanetSummary(id), [`player-planets-${id}`], { revalidate: 600 });
+  const cachedStreak = unstable_cache(() => getPlayerWinStreak(id), [`player-streak-${id}`], { revalidate: 600 });
 
   const [batch, equipment, history, planets, winStreak] = await Promise.all([
     cachedBatch(),

@@ -2,7 +2,7 @@ import LeaderboardTable from '@/components/LeaderboardTable';
 import { type TimeFilter as TF, getTopPlayersByXP, getTopPlayersByKills, getTopPlayersByWins, getTopPlayersByWinRate, getMostActivePlayers, getTopPlayersByMaterials } from '@/lib/queries/leaderboards';
 import { unstable_cache } from 'next/cache';
 
-export const revalidate = 300;
+export const revalidate = 600;
 
 export const metadata = {
   title: 'The Scape Leaderboard — Freedom Player Hub',
@@ -26,7 +26,7 @@ const timeOptions = [
 
 async function getData(cat: string, time: TF) {
   const cachedQuery = (fn: () => Promise<unknown[]>) =>
-    unstable_cache(fn, [`scape-${cat}-${time}`], { revalidate: 300 })();
+    unstable_cache(fn, [`scape-${cat}-${time}`], { revalidate: 600 })();
 
   switch (cat) {
     case 'kills': return ((await cachedQuery(() => getTopPlayersByKills(time))) as Array<Record<string, unknown>>).map(e => ({ fdv_id: (e.fdv_id as number) ?? 0, avatar_name: e.avatar_name as string | null, stat: Number(e.total_kills) || 0, level: e.max_level as number }));

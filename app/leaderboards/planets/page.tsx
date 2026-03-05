@@ -1,7 +1,7 @@
 import PlanetLeaderboard from '@/components/PlanetLeaderboard';
 import { getTopPlanetsByStructures, getTopUsersByFDS, getPlanetGlobalStats } from '@/lib/queries/planet-leaderboards';
 
-export const revalidate = 300;
+export const revalidate = 600;
 
 export const metadata = {
   title: 'Planet Leaderboard — Freedom Player Hub',

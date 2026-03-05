@@ -5,8 +5,9 @@ import PlanetHeroCard from '@/components/PlanetHeroCard';
 import Link from 'next/link';
 import { getGlobalStats, getTopPlayersByKills, getTopPlayersByXP, getTopPlayersByWins } from '@/lib/queries/leaderboards';
 import { getTopPlanetsByStructures, getTopUsersByFDS, getPlanetGlobalStats } from '@/lib/queries/planet-leaderboards';
+import { unstable_cache } from 'next/cache';
 
-export const revalidate = 300;
+export const revalidate = 600; // 10 min ISR — home page data doesn't change fast
 
 function formatNumber(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
@@ -15,15 +16,24 @@ function formatNumber(n: number): string {
 }
 
 export default async function HomePage() {
-  const [stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats] = await Promise.all([
-    getGlobalStats(),
-    getTopPlayersByKills('all-time'),
-    getTopPlayersByXP('all-time'),
-    getTopPlayersByWins('all-time'),
-    getTopPlanetsByStructures('all-time'),
-    getTopUsersByFDS('all-time'),
-    getPlanetGlobalStats(),
-  ]);
+  // All home page data cached for 10 minutes — single cache key
+  const getHomeData = unstable_cache(
+    async () => {
+      const [stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats] = await Promise.all([
+        getGlobalStats(),
+        getTopPlayersByKills('all-time'),
+        getTopPlayersByXP('all-time'),
+        getTopPlayersByWins('all-time'),
+        getTopPlanetsByStructures('all-time'),
+        getTopUsersByFDS('all-time'),
+        getPlanetGlobalStats(),
+      ]);
+      return { stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats };
+    },
+    ['home-page-data'],
+    { revalidate: 600 }
+  );
+  const { stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats } = await getHomeData();
 
   const killEntries = topKills.slice(0, 5).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: Number(e.total_kills) || 0, level: e.max_level }));
   const xpEntries = topXP.slice(0, 5).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: Number(e.total_xp) || 0, level: e.max_level }));

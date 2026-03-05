@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { unstable_cache } from 'next/cache';
 import PlanetAvatar from '@/components/PlanetAvatar';
 import PlanetStructureChart from '@/components/PlanetStructureChart';
 import PlanetActivityTimeline from '@/components/PlanetActivityTimeline';
 import { getPlanetDetail, getPlanetStructureHistory, getPlanetWorkforceHistory } from '@/lib/queries/planet-detail';
 import planetData from '@/lib/planet-data.json';
 
-export const revalidate = 300;
+export const revalidate = 600;
 
 const apiData = planetData as Record<string, {
   name: string; code: string; image: string; rarity: string; size: string;
@@ -37,10 +38,12 @@ function formatPopulation(n: number): string {
 export default async function PlanetDetailPage({ params }: { params: Promise<{ planetId: string }> }) {
   const { planetId } = await params;
 
+  const cachedDetail = unstable_cache(() => getPlanetDetail(planetId), [`planet-detail-${planetId}`], { revalidate: 600 });
+  const cachedStructure = unstable_cache(() => getPlanetStructureHistory(planetId), [`planet-struct-${planetId}`], { revalidate: 600 });
+  const cachedWorkforce = unstable_cache(() => getPlanetWorkforceHistory(planetId), [`planet-work-${planetId}`], { revalidate: 600 });
+
   const [detail, structureHistory, workforceHistory] = await Promise.all([
-    getPlanetDetail(planetId),
-    getPlanetStructureHistory(planetId),
-    getPlanetWorkforceHistory(planetId),
+    cachedDetail(), cachedStructure(), cachedWorkforce(),
   ]);
 
   if (!detail) notFound();
