@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import PlanetAvatar from './PlanetAvatar';
 
 type Props = {
@@ -13,11 +14,13 @@ type Props = {
 };
 
 export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, metrics, maxStat, stat }: Props) {
+  const router = useRouter();
   const progress = maxStat > 0 ? Math.max(5, (stat / maxStat) * 100) : 5;
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] border-b"
+      onClick={() => router.push(`/leaderboards/planets/${planetId}`)}
+      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] border-b cursor-pointer"
       style={{ borderColor: 'rgba(255,255,255,0.04)' }}
     >
       {/* Rank */}

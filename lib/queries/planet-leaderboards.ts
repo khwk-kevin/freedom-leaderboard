@@ -24,6 +24,8 @@ export type PlanetStructureEntry = {
 export type FDSEarnerEntry = {
   fdv_user_id: number;
   owner_name: string | null;
+  top_planet_id: string | null;
+  top_planet_name: string | null;
   total_fds: number;
   claims: number;
   planet_count: number;
@@ -68,7 +70,17 @@ export async function getTopUsersByFDS(timeFilter: TimeFilter = 'all-time'): Pro
         SELECT COUNT(DISTINCT pa.planet_id)::int 
         FROM web_freedom_planet_prod.planet_activated pa 
         WHERE pa.fdv_user_id = prc.fdv_user_id
-      ), 0) as planet_count
+      ), 0) as planet_count,
+      (
+        SELECT psb.planet_id FROM web_freedom_planet_prod.planet_structure_built psb
+        WHERE psb.fdv_user_id = prc.fdv_user_id
+        ORDER BY psb.total_structure::int DESC, psb.timestamp DESC LIMIT 1
+      ) as top_planet_id,
+      (
+        SELECT psb.planet_name FROM web_freedom_planet_prod.planet_structure_built psb
+        WHERE psb.fdv_user_id = prc.fdv_user_id
+        ORDER BY psb.total_structure::int DESC, psb.timestamp DESC LIMIT 1
+      ) as top_planet_name
     FROM web_freedom_planet_prod.planet_reward_claimed prc
     LEFT JOIN web_card_game_prod.users u ON u.id = prc.fdv_user_id::text
     ${tf}

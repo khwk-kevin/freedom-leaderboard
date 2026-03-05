@@ -67,9 +67,9 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
         ],
       }))
     : fdsData.map(e => ({
-        id: String(e.fdv_user_id),
+        id: e.top_planet_id || String(e.fdv_user_id),
         name: e.owner_name || `#FDW${e.fdv_user_id}`,
-        owner: `${e.planet_count} planet${e.planet_count !== 1 ? 's' : ''}`,
+        owner: e.top_planet_name ? `${e.top_planet_name} + ${e.planet_count - 1} more` : `${e.planet_count} planet${e.planet_count !== 1 ? 's' : ''}`,
         stat: Number(e.total_fds),
         metrics: [
           { label: 'FDS Earned', value: formatFDS(Number(e.total_fds)), color: '#00FFB3' },
