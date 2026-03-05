@@ -14,6 +14,7 @@ export type PlanetStructureEntry = {
   planet_id: string;
   planet_name: string;
   fdv_user_id: number;
+  owner_name: string | null;
   total_structure: number;
   total_food_structure: number;
   total_industrial_structure: number;
@@ -22,6 +23,7 @@ export type PlanetStructureEntry = {
 
 export type FDSEarnerEntry = {
   fdv_user_id: number;
+  owner_name: string | null;
   total_fds: number;
   claims: number;
   planet_count: number;
@@ -31,22 +33,26 @@ export type FDSEarnerEntry = {
 export async function getTopPlanetsByStructures(timeFilter: TimeFilter = 'all-time'): Promise<PlanetStructureEntry[]> {
   const tf = timeFilterSQL(timeFilter, 'psb.timestamp', 'WHERE');
   const rows = await rawQuery(`
-    SELECT DISTINCT ON (psb.planet_id)
-      psb.planet_id,
-      psb.planet_name,
-      psb.fdv_user_id::int,
-      psb.total_structure::int as total_structure,
-      COALESCE(psb.total_food_structure, 0)::int as total_food_structure,
-      COALESCE(psb.total_industrial_structure, 0)::int as total_industrial_structure,
-      psb.timestamp as last_updated
-    FROM web_freedom_planet_prod.planet_structure_built psb
-    ${tf}
-    ORDER BY psb.planet_id, psb.timestamp DESC
+    WITH ranked AS (
+      SELECT DISTINCT ON (psb.planet_id)
+        psb.planet_id,
+        psb.planet_name,
+        psb.fdv_user_id::int as fdv_user_id,
+        psb.total_structure::int as total_structure,
+        COALESCE(psb.total_food_structure, 0)::int as total_food_structure,
+        COALESCE(psb.total_industrial_structure, 0)::int as total_industrial_structure,
+        psb.timestamp as last_updated
+      FROM web_freedom_planet_prod.planet_structure_built psb
+      ${tf}
+      ORDER BY psb.planet_id, psb.timestamp DESC
+    )
+    SELECT r.*, u.avatar_name as owner_name
+    FROM ranked r
+    LEFT JOIN web_card_game_prod.users u ON u.id = r.fdv_user_id::text
+    ORDER BY r.total_structure DESC
+    LIMIT 100
   `);
-  // Sort by total_structure desc after dedup
-  return (rows as PlanetStructureEntry[])
-    .sort((a, b) => b.total_structure - a.total_structure)
-    .slice(0, 100);
+  return rows as PlanetStructureEntry[];
 }
 
 /** Top users ranked by FDS earned (FDS mode) */
@@ -55,6 +61,7 @@ export async function getTopUsersByFDS(timeFilter: TimeFilter = 'all-time'): Pro
   const rows = await rawQuery(`
     SELECT 
       prc.fdv_user_id::int,
+      u.avatar_name as owner_name,
       SUM(prc.claimed_amount::numeric)::numeric as total_fds,
       COUNT(*)::int as claims,
       COALESCE((
@@ -63,8 +70,9 @@ export async function getTopUsersByFDS(timeFilter: TimeFilter = 'all-time'): Pro
         WHERE pa.fdv_user_id = prc.fdv_user_id
       ), 0) as planet_count
     FROM web_freedom_planet_prod.planet_reward_claimed prc
+    LEFT JOIN web_card_game_prod.users u ON u.id = prc.fdv_user_id::text
     ${tf}
-    GROUP BY prc.fdv_user_id
+    GROUP BY prc.fdv_user_id, u.avatar_name
     ORDER BY total_fds DESC
     LIMIT 100
   `);

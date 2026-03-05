@@ -59,7 +59,7 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
     ? popData.map(e => ({
         id: e.planet_id,
         name: e.planet_name || 'Unknown Planet',
-        owner: `#FDW${e.fdv_user_id}`,
+        owner: e.owner_name || `#FDW${e.fdv_user_id}`,
         stat: e.total_structure,
         metrics: [
           { label: 'Structures', value: formatNumber(e.total_structure), color: '#FF6B6B' },
@@ -68,7 +68,7 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
       }))
     : fdsData.map(e => ({
         id: String(e.fdv_user_id),
-        name: `#FDW${e.fdv_user_id}`,
+        name: e.owner_name || `#FDW${e.fdv_user_id}`,
         owner: `${e.planet_count} planet${e.planet_count !== 1 ? 's' : ''}`,
         stat: Number(e.total_fds),
         metrics: [
