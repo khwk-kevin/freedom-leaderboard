@@ -20,7 +20,7 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
   const hasSplit = foodStat !== undefined && industrialStat !== undefined && stat > 0;
   const foodPct = hasSplit ? (foodStat / stat) * totalWidth : 0;
   const industrialPct = hasSplit ? (industrialStat / stat) * totalWidth : 0;
-  const isFDS = metrics[0]?.color === '#00FFB3';
+  const isFDS = metrics[0]?.color === '#00FFB3' || metrics[0]?.color === '#00FF88';
 
   return (
     <Link
@@ -60,7 +60,7 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
                 className="h-full"
                 style={{
                   width: `${foodPct}%`,
-                  background: '#22C55E',
+                  background: '#34D399',
                   borderRadius: industrialPct > 0 ? '9999px 0 0 9999px' : '9999px',
                 }}
               />
@@ -68,7 +68,7 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
                 className="h-full"
                 style={{
                   width: `${industrialPct}%`,
-                  background: '#F97316',
+                  background: '#FB923C',
                   borderRadius: foodPct > 0 ? '0 9999px 9999px 0' : '9999px',
                 }}
               />

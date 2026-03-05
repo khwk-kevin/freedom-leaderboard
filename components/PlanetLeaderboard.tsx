@@ -64,8 +64,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
         foodStat: e.total_food_structure,
         industrialStat: e.total_industrial_structure,
         metrics: [
-          { label: 'Structures', value: formatNumber(e.total_structure), color: '#FF6B6B' },
-          { label: 'Food / Industrial', value: `${e.total_food_structure} / ${e.total_industrial_structure}`, color: '#FF8888' },
+          { label: 'Structures', value: formatNumber(e.total_structure), color: '#E2E8F0' },
+          { label: '🌿 / ⚙️', value: `${e.total_food_structure} / ${e.total_industrial_structure}`, color: '#94A3B8' },
         ],
       }))
     : fdsData.map(e => ({
@@ -150,8 +150,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
       {/* Legend for population mode */}
       {mode === 'population' && (
         <div className="flex items-center justify-center gap-4 text-[10px]">
-          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#22C55E' }} /> Food</span>
-          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#F97316' }} /> Industrial</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#34D399' }} /> Food</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#FB923C' }} /> Industrial</span>
         </div>
       )}
 
