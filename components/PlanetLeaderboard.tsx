@@ -150,8 +150,8 @@ export default function PlanetLeaderboard({ initialMode, initialTime, initialPop
       {/* Legend for population mode */}
       {mode === 'population' && (
         <div className="flex items-center justify-center gap-4 text-[10px]">
-          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#34D399' }} /> Food</span>
-          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#FB923C' }} /> Industrial</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#00FF88' }} /> Food</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#E8913A' }} /> Industrial</span>
         </div>
       )}
 

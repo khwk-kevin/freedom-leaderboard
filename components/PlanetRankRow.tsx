@@ -60,7 +60,7 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
                 className="h-full"
                 style={{
                   width: `${foodPct}%`,
-                  background: '#34D399',
+                  background: '#00FF88',
                   borderRadius: industrialPct > 0 ? '9999px 0 0 9999px' : '9999px',
                 }}
               />
@@ -68,7 +68,7 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
                 className="h-full"
                 style={{
                   width: `${industrialPct}%`,
-                  background: '#FB923C',
+                  background: '#E8913A',
                   borderRadius: foodPct > 0 ? '0 9999px 9999px 0' : '9999px',
                 }}
               />
