@@ -1,6 +1,4 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import PlanetAvatar from './PlanetAvatar';
 
 type Props = {
@@ -13,13 +11,12 @@ type Props = {
 };
 
 export default function PlanetHeroCard({ rank, planetId, planetName, ownerLabel, metrics, reversed }: Props) {
-  const router = useRouter();
   const planetSize = rank === 1 ? 100 : rank <= 3 ? 80 : 64;
 
   return (
-    <div
-      onClick={() => router.push(`/leaderboards/planets/${planetId}`)}
-      className={`flex items-center gap-3 sm:gap-4 rounded-2xl p-3 sm:p-5 transition-all hover:scale-[1.01] cursor-pointer ${reversed ? 'sm:flex-row-reverse flex-row' : 'flex-row'}`}
+    <Link
+      href={`/leaderboards/planets/${planetId}`}
+      className={`flex items-center gap-3 sm:gap-4 rounded-2xl p-3 sm:p-5 transition-all hover:scale-[1.01] cursor-pointer block ${reversed ? 'sm:flex-row-reverse flex-row' : 'flex-row'}`}
       style={{
         background: 'linear-gradient(135deg, rgba(15, 20, 40, 0.8), rgba(25, 15, 50, 0.6))',
         border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -55,6 +52,6 @@ export default function PlanetHeroCard({ rank, planetId, planetName, ownerLabel,
           ))}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

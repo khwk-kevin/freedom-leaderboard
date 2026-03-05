@@ -1,6 +1,4 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import PlanetAvatar from './PlanetAvatar';
 
 type Props = {
@@ -14,13 +12,12 @@ type Props = {
 };
 
 export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, metrics, maxStat, stat }: Props) {
-  const router = useRouter();
   const progress = maxStat > 0 ? Math.max(5, (stat / maxStat) * 100) : 5;
 
   return (
-    <div
-      onClick={() => router.push(`/leaderboards/planets/${planetId}`)}
-      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] border-b cursor-pointer"
+    <Link
+      href={`/leaderboards/planets/${planetId}`}
+      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03] border-b cursor-pointer block"
       style={{ borderColor: 'rgba(255,255,255,0.04)' }}
     >
       {/* Rank */}
@@ -63,6 +60,6 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
           />
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
