@@ -1,5 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+import planetImages from '@/lib/planet-images.json';
+
+const imageMap = planetImages as Record<string, string>;
+
 function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -11,25 +16,61 @@ function hashString(str: string): number {
 }
 
 const PLANET_PALETTES = [
-  ['#1a6b4a', '#2dd4bf', '#065f46'],   // Green earth-like
-  ['#7c3aed', '#c084fc', '#4c1d95'],   // Purple nebula
-  ['#dc2626', '#f97316', '#7f1d1d'],   // Red volcanic
-  ['#2563eb', '#38bdf8', '#1e3a5f'],   // Blue ocean
-  ['#d97706', '#fbbf24', '#78350f'],   // Gold desert
-  ['#059669', '#34d399', '#064e3b'],   // Emerald
-  ['#9333ea', '#f472b6', '#581c87'],   // Pink/purple
-  ['#0891b2', '#22d3ee', '#164e63'],   // Cyan ice
-  ['#b91c1c', '#fca5a5', '#450a0a'],   // Crimson
-  ['#4f46e5', '#818cf8', '#312e81'],   // Indigo
-  ['#15803d', '#86efac', '#14532d'],   // Forest
-  ['#a16207', '#fde68a', '#713f12'],   // Amber
+  ['#1a6b4a', '#2dd4bf', '#065f46'],
+  ['#7c3aed', '#c084fc', '#4c1d95'],
+  ['#dc2626', '#f97316', '#7f1d1d'],
+  ['#2563eb', '#38bdf8', '#1e3a5f'],
+  ['#d97706', '#fbbf24', '#78350f'],
+  ['#059669', '#34d399', '#064e3b'],
+  ['#9333ea', '#f472b6', '#581c87'],
+  ['#0891b2', '#22d3ee', '#164e63'],
+  ['#b91c1c', '#fca5a5', '#450a0a'],
+  ['#4f46e5', '#818cf8', '#312e81'],
+  ['#15803d', '#86efac', '#14532d'],
+  ['#a16207', '#fde68a', '#713f12'],
 ];
 
 export default function PlanetAvatar({ planetId, planetName, size = 64 }: { planetId: string; planetName?: string; size?: number }) {
+  const [imgError, setImgError] = useState(false);
+  const imageUrl = imageMap[planetId];
+
+  // If we have a real planet image from the CDN, use it
+  if (imageUrl && !imgError) {
+    return (
+      <div
+        className="rounded-full relative overflow-hidden shrink-0"
+        style={{
+          width: size,
+          height: size,
+          boxShadow: `0 0 ${size * 0.3}px rgba(100, 120, 255, 0.2)`,
+        }}
+        title={planetName || planetId}
+      >
+        <img
+          src={imageUrl}
+          alt={planetName || planetId}
+          width={size}
+          height={size}
+          className="w-full h-full object-cover rounded-full"
+          onError={() => setImgError(true)}
+          loading="lazy"
+        />
+        {/* Atmosphere glow overlay */}
+        <div
+          className="absolute inset-0 rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 30% 25%, rgba(255,255,255,0.12) 0%, transparent 50%)',
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Fallback: gradient circle
   const hash = hashString(planetId);
   const palette = PLANET_PALETTES[hash % PLANET_PALETTES.length];
   const rotation = (hash % 360);
-  
+
   return (
     <div
       className="rounded-full relative overflow-hidden shrink-0"
@@ -41,14 +82,12 @@ export default function PlanetAvatar({ planetId, planetName, size = 64 }: { plan
       }}
       title={planetName || planetId}
     >
-      {/* Surface detail overlay */}
       <div
         className="absolute inset-0 rounded-full opacity-30"
         style={{
           background: `conic-gradient(from ${rotation}deg, transparent 0%, ${palette[1]}40 25%, transparent 50%, ${palette[0]}30 75%, transparent 100%)`,
         }}
       />
-      {/* Atmosphere glow */}
       <div
         className="absolute inset-0 rounded-full"
         style={{
