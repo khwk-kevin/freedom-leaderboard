@@ -72,6 +72,13 @@ body {
   border-radius: 12px;
 }
 
+/* Hide scrollbar for horizontal scroll tabs on mobile */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
 /* Animations */
 @keyframes pulse-glow {
   0%, 100% { opacity: 1; }

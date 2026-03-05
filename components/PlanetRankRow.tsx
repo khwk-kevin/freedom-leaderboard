@@ -24,13 +24,12 @@ export default function PlanetRankRow({ rank, planetId, planetName, ownerLabel, 
       style={{ borderColor: 'rgba(255,255,255,0.04)' }}
     >
       {/* Rank */}
-      <div className="shrink-0 w-12 text-center">
-        <span className="text-[10px] uppercase tracking-wider block" style={{ color: '#7D8598' }}>Rank</span>
-        <span className="text-white font-black text-base">#{rank}</span>
+      <div className="shrink-0 w-10 sm:w-12 text-center">
+        <span className="text-white font-black text-sm sm:text-base">#{rank}</span>
       </div>
 
       {/* Planet avatar */}
-      <PlanetAvatar planetId={planetId} planetName={planetName} size={44} />
+      <PlanetAvatar planetId={planetId} planetName={planetName} size={38} />
 
       {/* Name + progress */}
       <div className="flex-1 min-w-0">

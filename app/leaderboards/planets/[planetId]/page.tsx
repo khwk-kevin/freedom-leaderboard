@@ -76,8 +76,8 @@ export default async function PlanetDetailPage({ params }: { params: Promise<{ p
         </Link>
 
         {/* Hero Section */}
-        <div className="flex flex-col md:flex-row items-center gap-6 rounded-2xl p-6 md:p-8" style={{ background: 'linear-gradient(135deg, rgba(15, 20, 40, 0.85), rgba(25, 15, 50, 0.65))', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
-          <PlanetAvatar planetId={planetId} planetName={detail.planet_name} size={180} />
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-2xl p-4 sm:p-6 md:p-8" style={{ background: 'linear-gradient(135deg, rgba(15, 20, 40, 0.85), rgba(25, 15, 50, 0.65))', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+          <PlanetAvatar planetId={planetId} planetName={detail.planet_name} size={120} />
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-wrap items-center gap-2 justify-center md:justify-start mb-2">
               <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#C4524F' }}>
@@ -94,7 +94,7 @@ export default async function PlanetDetailPage({ params }: { params: Promise<{ p
                 </span>
               )}
             </div>
-            <h1 className="text-3xl md:text-4xl font-black text-white">{detail.planet_name}</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">{detail.planet_name}</h1>
             <p className="text-sm mt-1" style={{ color: '#7A8A99' }}>
               Owned by <span className="text-white font-semibold">{detail.owner_name || `#FDW${detail.fdv_user_id}`}</span>
               {api && <span> · {api.size} · {api.mineralDensity} minerals</span>}
@@ -108,7 +108,7 @@ export default async function PlanetDetailPage({ params }: { params: Promise<{ p
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
           {[
             { label: 'Total Structures', value: String(detail.total_structure), icon: '🏗️', color: '#FF6B6B' },
             { label: 'Food Structures', value: String(detail.total_food_structure), icon: '🌾', color: '#10B981' },
@@ -125,12 +125,12 @@ export default async function PlanetDetailPage({ params }: { params: Promise<{ p
             { label: 'Owner Planets', value: String(detail.total_owner_planets), icon: '🪐', color: '#8B5CF6' },
             { label: 'Build Events', value: String(structureHistory.length), icon: '📋', color: '#6366F1' },
           ].map((stat, i) => (
-            <div key={i} className="rounded-xl p-4" style={{ background: 'rgba(15, 20, 40, 0.7)', border: '1px solid rgba(255,255,255,0.04)' }}>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-base">{stat.icon}</span>
-                <span className="text-[10px] uppercase tracking-wider" style={{ color: '#7A8A99' }}>{stat.label}</span>
+            <div key={i} className="rounded-xl p-3 sm:p-4" style={{ background: 'rgba(15, 20, 40, 0.7)', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-sm sm:text-base">{stat.icon}</span>
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider" style={{ color: '#7A8A99' }}>{stat.label}</span>
               </div>
-              <p className="text-xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
+              <p className="text-base sm:text-xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
             </div>
           ))}
         </div>

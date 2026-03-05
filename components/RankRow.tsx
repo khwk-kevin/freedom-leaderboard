@@ -17,27 +17,27 @@ export default function RankRow({ entry, rank, maxStat }: { entry: Entry; rank: 
 
   return (
     <Link href={`/player/${id}`} className="block">
-      <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors border-b" style={{ borderColor: '#1A1D25' }}>
+      <div className="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-white/[0.03] transition-colors border-b" style={{ borderColor: '#1A1D25' }}>
         {/* Rank */}
-        <span className="w-8 text-center font-black text-base" style={{ color: '#00FFB3' }}>
+        <span className="w-7 sm:w-8 text-center font-black text-sm sm:text-base shrink-0" style={{ color: '#00FFB3' }}>
           {rank}
         </span>
 
         {/* Avatar */}
-        <div className="shrink-0" style={{ border: '2px solid #2A2A50', borderRadius: 10, overflow: 'hidden' }}>
-          <AvatarImage fdvId={id} name={name} size={40} className="rounded-lg" />
+        <div className="shrink-0 rounded-lg overflow-hidden" style={{ border: '1.5px solid #2A2A50' }}>
+          <AvatarImage fdvId={id} name={name} size={36} className="rounded-lg" />
         </div>
 
         {/* Name + stat + progress */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="text-white font-semibold text-sm truncate">{name}</span>
-            <span className="text-xs font-bold shrink-0" style={{ color: '#00FFB3' }}>
+          <div className="flex items-baseline justify-between gap-1.5">
+            <span className="text-white font-semibold text-xs sm:text-sm truncate">{name}</span>
+            <span className="text-[11px] sm:text-xs font-bold shrink-0" style={{ color: '#00FFB3' }}>
               {typeof entry.stat === 'number' ? entry.stat.toLocaleString() : entry.stat}
             </span>
           </div>
           {/* Progress bar */}
-          <div className="mt-1.5 h-1 rounded-full overflow-hidden" style={{ background: '#1A1D25' }}>
+          <div className="mt-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#1A1D25' }}>
             <div
               className="h-full rounded-full"
               style={{
