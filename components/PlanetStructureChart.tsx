@@ -31,7 +31,7 @@ export default function PlanetStructureChart({ data }: { data: StructureEvent[] 
           <YAxis tick={{ fill: '#7A8A99', fontSize: 11 }} tickLine={false} axisLine={false} />
           <Tooltip
             contentStyle={{ background: '#0D1215', border: '1px solid #1E2529', borderRadius: 8, color: '#fff', fontSize: 12 }}
-            formatter={(value: number, name: string) => [value, name === 'food' ? '🌾 Food' : name === 'industrial' ? '⚙️ Industrial' : '📊 Total']}
+            formatter={(value: number | undefined, name: string | undefined) => [value ?? 0, name === 'food' ? '🌾 Food' : name === 'industrial' ? '⚙️ Industrial' : '📊 Total']}
             labelFormatter={(label) => `📅 ${label}`}
           />
           <Area type="monotone" dataKey="food" stroke="#10B981" fill="url(#gradFood)" strokeWidth={2} />
