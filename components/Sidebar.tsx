@@ -20,8 +20,13 @@ export default function Sidebar() {
         </button>
       </div>
 
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/60 z-30" onClick={() => setMobileOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside className={`${mobileOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-72 bg-[#0D1215] border-r border-[#1E2529] fixed h-full z-40 overflow-y-auto top-[60px] md:top-0`}>
+      <aside className={`${mobileOpen ? 'flex' : 'hidden'} md:flex flex-col w-[280px] md:w-72 bg-[#0D1215] border-r border-[#1E2529] fixed h-full z-40 overflow-y-auto top-[60px] md:top-0`}>
         {/* Logo */}
         <div className="p-6 flex items-center justify-center mb-4">
           <Image src="/freedom-logo.png" alt="Freedom World" width={180} height={48} className="h-12 w-auto" priority />
@@ -34,15 +39,15 @@ export default function Sidebar() {
 
         {/* Nav Links */}
         <nav className="flex-1 px-3 space-y-1">
-          <Link href="/" className="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20">
+          <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20">
             <i className="fa-solid fa-user-astronaut w-5"></i>
             <span className="font-medium text-sm">Player Hub</span>
           </Link>
-          <Link href="/leaderboards" className="flex items-center gap-3 px-3 py-3 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
+          <Link href="/leaderboards" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
             <i className="fa-solid fa-trophy w-5 group-hover:text-[#00FF88] transition-colors"></i>
             <span className="font-medium text-sm">Leaderboards</span>
           </Link>
-          <Link href="/leaderboards/planets" className="flex items-center gap-3 px-3 py-3 pl-8 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
+          <Link href="/leaderboards/planets" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 px-3 py-3 pl-8 rounded-lg text-[#B8C5D0] hover:bg-white/5 hover:text-white transition-colors group">
             <i className="fa-solid fa-earth-americas w-5 group-hover:text-[#00FF88] transition-colors"></i>
             <span className="font-medium text-sm">Planets</span>
           </Link>
