@@ -55,12 +55,12 @@ export default async function PlayerPage({ params }: Props) {
   return (
     <>
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-[#A0AEC0] mb-6">
+      <div className="flex items-center gap-1.5 text-xs text-[#A0AEC0] mb-3 sm:mb-6">
         <a href="/" className="hover:text-white transition-colors">Home</a>
-        <i className="fa-solid fa-chevron-right text-[10px]"></i>
-        <a href="/leaderboards" className="hover:text-white transition-colors">Players</a>
-        <i className="fa-solid fa-chevron-right text-[10px]"></i>
-        <span className="text-white font-medium">{name}</span>
+        <i className="fa-solid fa-chevron-right text-[8px]"></i>
+        <a href="/leaderboards/scape" className="hover:text-white transition-colors">Players</a>
+        <i className="fa-solid fa-chevron-right text-[8px]"></i>
+        <span className="text-white font-medium truncate">{name}</span>
       </div>
 
       {/* Hero Header */}
@@ -76,17 +76,17 @@ export default async function PlayerPage({ params }: Props) {
       />
 
       {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Column (2/3) */}
-        <div className="lg:col-span-2 space-y-6 md:space-y-8">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Battle Performance Stats */}
           {s && s.total_matches > 0 && (
             <section>
-              <h2 className="text-xl font-bold text-white mb-4">
-                <i className="fa-solid fa-swords mr-2 text-[#00FF88]"></i>
+              <h2 className="text-sm sm:text-xl font-bold text-white mb-2 sm:mb-4">
+                <i className="fa-solid fa-swords mr-1.5 text-[#00FF88]"></i>
                 Battle Performance
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                 <StatCard
                   label="Win Rate"
                   value={`${s.win_rate}%`}
@@ -115,17 +115,17 @@ export default async function PlayerPage({ params }: Props) {
           )}
 
           {/* Charts Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Radar Chart */}
-            <div className="bg-[#0D1215] border border-[#1E2529] rounded-2xl p-5 shadow-card">
-              <h3 className="text-base font-bold text-white mb-4">Class Mastery</h3>
+            <div className="bg-[#0D1215] border border-[#1E2529] rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-card">
+              <h3 className="text-sm sm:text-base font-bold text-white mb-2 sm:mb-4">Class Mastery</h3>
               <RadarChart stats={radar as { might_pct: number; vitality_pct: number; spirit_pct: number; precision_pct: number; lethality_pct: number; nexus_pct: number } | null} />
             </div>
 
             {/* Combat Stats */}
             {combat && (
-              <div className="bg-[#0D1215] border border-[#1E2529] rounded-2xl p-5 shadow-card">
-                <h3 className="text-base font-bold text-white mb-4">Peak Combat Stats</h3>
+              <div className="bg-[#0D1215] border border-[#1E2529] rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-card">
+                <h3 className="text-sm sm:text-base font-bold text-white mb-2 sm:mb-4">Peak Combat Stats</h3>
                 <div className="space-y-4">
                   {[
                     { label: 'Max Damage', value: (combat as Record<string, number>).max_damage, color: '#FF6B6B', icon: '⚡' },
@@ -158,7 +158,7 @@ export default async function PlayerPage({ params }: Props) {
         </div>
 
         {/* Side Column (1/3) */}
-        <div className="space-y-6 md:space-y-8">
+        <div className="space-y-4 sm:space-y-6">
           {/* Build Identity */}
           <BuildIdentity
             dominantRole={dominantRole as { primary: { name: string; icon: string; value: number }; secondary: { name: string; icon: string; value: number }; stats: { peak_damage: number; peak_block: number; peak_heal: number } } | null}
@@ -175,11 +175,11 @@ export default async function PlayerPage({ params }: Props) {
           <PlanetStats planets={planets as { total_planets: number; total_structures: number; total_fds_earned: number } | null} />
 
           {/* CTA */}
-          <section className="text-center py-6">
-            <div className="bg-gradient-to-r from-[#00FF88]/10 to-transparent border border-[#00FF88]/20 rounded-xl p-6">
-              <p className="text-[#B8C5D0] mb-4">Want stats like these?</p>
+          <section className="text-center py-3 sm:py-6">
+            <div className="bg-gradient-to-r from-[#00FF88]/10 to-transparent border border-[#00FF88]/20 rounded-xl p-4 sm:p-6">
+              <p className="text-[#B8C5D0] text-sm mb-3">Want stats like these?</p>
               <a href="https://freedom.world" target="_blank" rel="noopener noreferrer"
-                className="inline-block px-8 py-3 bg-[#00FF88] text-black rounded-xl text-lg font-bold shadow-[0_4px_12px_rgba(0,255,136,0.4)] hover:bg-[#00FFB8] transition-all transform hover:-translate-y-0.5">
+                className="inline-block px-6 py-2.5 bg-[#00FF88] text-black rounded-xl text-sm sm:text-lg font-bold shadow-[0_4px_12px_rgba(0,255,136,0.4)] hover:bg-[#00FFB8] transition-all">
                 Join Freedom World
               </a>
             </div>
@@ -188,8 +188,8 @@ export default async function PlayerPage({ params }: Props) {
       </div>
 
       {/* Footer */}
-      <footer className="mt-12 pt-8 border-t border-[#1E2529] text-center md:text-left">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="mt-6 sm:mt-12 pt-4 sm:pt-8 border-t border-[#1E2529] text-center md:text-left">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6">
           <div>
             <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
               <div className="w-6 h-6 rounded bg-gradient-to-br from-[#00FF88] to-green-600 flex items-center justify-center text-black font-bold text-xs">F</div>

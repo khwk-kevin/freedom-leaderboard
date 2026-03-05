@@ -6,8 +6,8 @@ type Entry = { fdv_id?: number; fdv_user_id?: number; avatar_name?: string | nul
 export default function LeaderboardTable({ entries, statLabel }: { entries: Entry[]; statLabel: string }) {
   if (entries.length === 0) {
     return (
-      <div className="text-center py-16">
-        <p className="text-lg" style={{ color: '#7A8A99' }}>No data available for this period.</p>
+      <div className="text-center py-12">
+        <p className="text-sm" style={{ color: '#7A8A99' }}>No data available for this period.</p>
       </div>
     );
   }
@@ -15,24 +15,14 @@ export default function LeaderboardTable({ entries, statLabel }: { entries: Entr
   const top3 = entries.slice(0, 3);
   const rest = entries.slice(3);
 
-  // Max stat for progress bars (from rank 4 onwards, relative to rank 4)
   const maxStat = rest.length > 0
     ? Math.max(...rest.map(e => typeof e.stat === 'number' ? e.stat : parseFloat(String(e.stat)) || 0))
     : 1;
 
   return (
     <div>
-      {/* Top 3 Podium */}
       {top3.length >= 3 && <Podium entries={top3} statLabel={statLabel} />}
 
-      {/* Scrolling indicator */}
-      {rest.length > 0 && (
-        <div className="flex justify-center py-2">
-          <div className="w-10 h-1 rounded-full" style={{ background: '#2A2A50' }} />
-        </div>
-      )}
-
-      {/* Remaining ranks */}
       <div className="rounded-xl overflow-hidden" style={{ background: '#090D0F' }}>
         {rest.map((entry, i) => (
           <RankRow key={i} entry={entry} rank={i + 4} maxStat={maxStat} />

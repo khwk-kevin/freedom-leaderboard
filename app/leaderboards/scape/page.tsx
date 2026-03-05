@@ -1,7 +1,5 @@
 import LeaderboardTable from '@/components/LeaderboardTable';
-import TimeFilter from '@/components/TimeFilter';
 import { type TimeFilter as TF, getTopPlayersByXP, getTopPlayersByKills, getTopPlayersByWins, getTopPlayersByWinRate, getMostActivePlayers, getTopPlayersByMaterials } from '@/lib/queries/leaderboards';
-import { Suspense } from 'react';
 
 export const revalidate = 300;
 
@@ -11,12 +9,18 @@ export const metadata = {
 };
 
 const tabs = [
-  { key: 'kills', label: '🗡️ Slayers', statLabel: 'Kills' },
-  { key: 'xp', label: '⭐ Level', statLabel: 'XP' },
-  { key: 'wins', label: '🏆 Wins', statLabel: 'Wins' },
-  { key: 'winrate', label: '🎯 Accuracy', statLabel: 'Win Rate %' },
-  { key: 'active', label: '⚔️ Active', statLabel: 'Matches' },
-  { key: 'materials', label: '💎 Materials', statLabel: 'Materials' },
+  { key: 'kills', label: 'Slayers', statLabel: 'Kills' },
+  { key: 'xp', label: 'Level', statLabel: 'XP' },
+  { key: 'wins', label: 'Wins', statLabel: 'Wins' },
+  { key: 'winrate', label: 'Accuracy', statLabel: 'Win Rate %' },
+  { key: 'active', label: 'Active', statLabel: 'Matches' },
+  { key: 'materials', label: 'Materials', statLabel: 'Materials' },
+];
+
+const timeOptions = [
+  { value: 'week', label: '7D' },
+  { value: 'month', label: '30D' },
+  { value: 'all-time', label: 'All' },
 ];
 
 async function getData(cat: string, time: TF) {
@@ -31,21 +35,6 @@ async function getData(cat: string, time: TF) {
   }
 }
 
-function TabButton({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shrink-0"
-      style={active
-        ? { background: '#00FF88', color: '#090D0F', boxShadow: '0 0 12px rgba(0, 255, 136, 0.3)' }
-        : { background: '#1A1A2E', color: '#7A8A99', border: '1px solid #1E2529' }
-      }
-    >
-      {children}
-    </a>
-  );
-}
-
 export default async function ScapeLeaderboardPage({ searchParams }: { searchParams: Promise<{ cat?: string; time?: string }> }) {
   const params = await searchParams;
   const cat = params.cat || 'kills';
@@ -54,37 +43,48 @@ export default async function ScapeLeaderboardPage({ searchParams }: { searchPar
   const data = await getData(cat, time);
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <span>⚔️</span> The Scape
-          </h1>
-          <p className="text-xs sm:text-sm mt-0.5" style={{ color: '#7A8A99' }}>PvP Arena Rankings</p>
+    <div className="space-y-0">
+      {/* Sticky header: title + time + tabs all in one compact block */}
+      <div className="sticky top-0 z-20 -mx-4 px-4 pt-2 pb-2 md:mx-0 md:px-0" style={{ background: 'rgba(10, 14, 16, 0.97)', backdropFilter: 'blur(8px)' }}>
+        {/* Row 1: Title + Time filter */}
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-base sm:text-lg font-black text-white tracking-tight">⚔️ The Scape</h1>
+          <div className="flex gap-1">
+            {timeOptions.map(opt => (
+              <a
+                key={opt.value}
+                href={`/leaderboards/scape?cat=${cat}&time=${opt.value}`}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors ${
+                  time === opt.value
+                    ? 'bg-[#00FF88] text-black'
+                    : 'text-[#7A8A99] hover:text-white'
+                }`}
+              >
+                {opt.label}
+              </a>
+            ))}
+          </div>
         </div>
-        <Suspense><TimeFilter /></Suspense>
-      </div>
-
-      {/* Sticky tabs */}
-      <div className="sticky top-0 z-20 -mx-4 px-4 py-2 md:mx-0 md:px-0" style={{ background: 'rgba(10, 14, 16, 0.95)', backdropFilter: 'blur(8px)' }}>
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {/* Row 2: Category tabs */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {tabs.map(t => (
-            <TabButton key={t.key} href={`/leaderboards/scape?cat=${t.key}&time=${time}`} active={cat === t.key}>
+            <a
+              key={t.key}
+              href={`/leaderboards/scape?cat=${t.key}&time=${time}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
+                cat === t.key
+                  ? 'bg-white/10 text-white border border-white/20'
+                  : 'text-[#7A8A99] hover:text-white'
+              }`}
+            >
               {t.label}
-            </TabButton>
+            </a>
           ))}
         </div>
       </div>
 
-      {/* Leaderboard content */}
-      <div className="card !p-0 overflow-hidden">
-        <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-2">
-          <h2 className="text-base sm:text-lg font-bold text-white">{currentTab.label}</h2>
-          <p className="text-[10px] sm:text-xs mt-0.5" style={{ color: '#7A8A99' }}>Ranked by {currentTab.statLabel}</p>
-        </div>
-        <LeaderboardTable entries={data} statLabel={currentTab.statLabel} />
-      </div>
+      {/* Leaderboard content — no redundant header */}
+      <LeaderboardTable entries={data} statLabel={currentTab.statLabel} />
     </div>
   );
 }

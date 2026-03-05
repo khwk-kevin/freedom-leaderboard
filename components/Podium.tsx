@@ -9,35 +9,26 @@ type PodiumEntry = {
   level?: number | null;
 };
 
-const medalColors = {
-  1: { ring: '#FFD700', badge: 'bg-gradient-to-br from-yellow-400 to-orange-500', glow: 'shadow-[0_0_20px_rgba(255,215,0,0.4)]' },
-  2: { ring: '#C0C0C0', badge: 'bg-gradient-to-br from-gray-300 to-gray-500', glow: 'shadow-[0_0_15px_rgba(192,192,192,0.3)]' },
-  3: { ring: '#CD7F32', badge: 'bg-gradient-to-br from-amber-600 to-amber-800', glow: 'shadow-[0_0_15px_rgba(205,127,50,0.3)]' },
-} as const;
+const ringColors: Record<number, string> = { 1: '#FFD700', 2: '#C0C0C0', 3: '#CD7F32' };
 
 function PodiumCard({ entry, rank, statLabel }: { entry: PodiumEntry; rank: 1 | 2 | 3; statLabel: string }) {
   const id = entry.fdv_id ?? entry.fdv_user_id ?? 0;
   const name = entry.avatar_name || `#FDW${id}`;
-  const medal = medalColors[rank];
   const isFirst = rank === 1;
 
   return (
     <Link href={`/player/${id}`} className="block group">
       <div
-        className={`relative flex flex-col items-center rounded-xl sm:rounded-2xl border border-white/10 px-1.5 sm:px-3 py-3 sm:py-5 transition-all hover:border-white/20 hover:scale-[1.02] ${isFirst ? 'bg-[#14142E]/80 shadow-[0_0_30px_rgba(16,244,139,0.1)]' : 'bg-[#14142E]/50'}`}
-        style={{ marginTop: isFirst ? 0 : 16 }}
+        className={`relative flex flex-col items-center rounded-xl border border-white/10 px-1 sm:px-3 py-2.5 sm:py-4 transition-all hover:border-white/20 ${isFirst ? 'bg-[#14142E]/80' : 'bg-[#14142E]/50'}`}
+        style={{ marginTop: isFirst ? 0 : 12 }}
       >
-        {/* Avatar with ring and rank badge */}
-        <div className="relative mb-2">
-          <div
-            className="rounded-xl overflow-hidden"
-            style={{ border: `2px solid ${medal.ring}`, padding: 1 }}
-          >
-            <AvatarImage fdvId={id} name={name} size={isFirst ? 64 : 48} className="rounded-lg" />
+        {/* Avatar + rank badge */}
+        <div className="relative mb-1.5">
+          <div className="rounded-lg overflow-hidden" style={{ border: `2px solid ${ringColors[rank]}`, padding: 1 }}>
+            <AvatarImage fdvId={id} name={name} size={isFirst ? 56 : 44} className="rounded-md" />
           </div>
-          {/* Rank badge */}
           <div
-            className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg"
+            className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black"
             style={{ background: '#10F48B', color: '#090D0F' }}
           >
             {rank}
@@ -45,26 +36,17 @@ function PodiumCard({ entry, rank, statLabel }: { entry: PodiumEntry; rank: 1 | 
         </div>
 
         {/* Name */}
-        <p className="text-white font-bold text-[11px] sm:text-sm text-center truncate w-full group-hover:text-[#00FFB3] transition-colors">
+        <p className="text-white font-bold text-[10px] sm:text-xs text-center truncate w-full group-hover:text-[#00FFB3]">
           {name}
         </p>
 
-        {/* Stat label */}
-        <p className="text-[10px] sm:text-[11px] mt-0.5" style={{ color: '#A0A0B0' }}>{statLabel}</p>
-
         {/* Stat value */}
-        <p className="font-black mt-0.5" style={{ color: '#00FFB3', fontSize: isFirst ? 18 : 15 }}>
+        <p className="font-black text-sm sm:text-base mt-0.5" style={{ color: '#00FFB3' }}>
           {typeof entry.stat === 'number' ? entry.stat.toLocaleString() : entry.stat}
         </p>
 
-        {/* Star badge — smaller on mobile */}
-        <div className={`mt-2 rounded-full flex items-center justify-center ${medal.badge} ${medal.glow}`}
-          style={{ width: isFirst ? 40 : 32, height: isFirst ? 40 : 32 }}
-        >
-          <svg width={isFirst ? 20 : 16} height={isFirst ? 20 : 16} viewBox="0 0 24 24" fill="white">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
-        </div>
+        {/* Stat label */}
+        <p className="text-[9px] text-[#7A8A99]">{statLabel}</p>
       </div>
     </Link>
   );
@@ -74,19 +56,10 @@ export default function Podium({ entries, statLabel }: { entries: PodiumEntry[];
   if (entries.length < 3) return null;
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 sm:gap-3 px-1 sm:px-4 py-4 sm:py-6 items-end">
-      {/* 2nd place */}
-      <div>
-        <PodiumCard entry={entries[1]} rank={2} statLabel={statLabel} />
-      </div>
-      {/* 1st place */}
-      <div>
-        <PodiumCard entry={entries[0]} rank={1} statLabel={statLabel} />
-      </div>
-      {/* 3rd place */}
-      <div>
-        <PodiumCard entry={entries[2]} rank={3} statLabel={statLabel} />
-      </div>
+    <div className="grid grid-cols-3 gap-1.5 sm:gap-3 px-1 sm:px-2 py-3 sm:py-4 items-end">
+      <PodiumCard entry={entries[1]} rank={2} statLabel={statLabel} />
+      <PodiumCard entry={entries[0]} rank={1} statLabel={statLabel} />
+      <PodiumCard entry={entries[2]} rank={3} statLabel={statLabel} />
     </div>
   );
 }

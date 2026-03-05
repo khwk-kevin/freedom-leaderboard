@@ -69,35 +69,35 @@ export default async function PlanetDetailPage({ params }: { params: Promise<{ p
       {/* Nebula overlay */}
       <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 30% 20%, rgba(88, 28, 135, 0.15) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(59, 7, 100, 0.1) 0%, transparent 50%)', zIndex: 0 }} />
 
-      <div className="relative z-10 max-w-5xl mx-auto space-y-6">
+      <div className="relative z-10 max-w-5xl mx-auto space-y-4 sm:space-y-6">
         {/* Back link */}
-        <Link href="/leaderboards/planets" className="inline-flex items-center gap-2 text-sm hover:text-white transition-colors" style={{ color: '#7A8A99' }}>
-          ← Back to Planet Leaderboard
+        <Link href="/leaderboards/planets" className="inline-flex items-center gap-1.5 text-xs hover:text-white transition-colors" style={{ color: '#7A8A99' }}>
+          ← Planets
         </Link>
 
         {/* Hero Section */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-2xl p-4 sm:p-6 md:p-8" style={{ background: 'linear-gradient(135deg, rgba(15, 20, 40, 0.85), rgba(25, 15, 50, 0.65))', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
-          <PlanetAvatar planetId={planetId} planetName={detail.planet_name} size={120} />
-          <div className="flex-1 text-center md:text-left">
-            <div className="flex flex-wrap items-center gap-2 justify-center md:justify-start mb-2">
-              <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#C4524F' }}>
-                Rank #{detail.rank}
+        <div className="flex items-center gap-3 sm:gap-6 rounded-xl sm:rounded-2xl p-3 sm:p-6" style={{ background: 'linear-gradient(135deg, rgba(15, 20, 40, 0.85), rgba(25, 15, 50, 0.65))', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+          <PlanetAvatar planetId={planetId} planetName={detail.planet_name} size={80} />
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+              <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black text-white" style={{ background: '#C4524F' }}>
+                #{detail.rank}
               </span>
               {api && (
-                <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: `${rarityColor}20`, color: rarityColor, border: `1px solid ${rarityColor}40` }}>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: `${rarityColor}20`, color: rarityColor, border: `1px solid ${rarityColor}40` }}>
                   {api.rarity}
                 </span>
               )}
               {api && (
-                <span className="px-2 py-1 rounded-full text-[10px] font-bold" style={{ background: 'rgba(255,255,255,0.06)', color: '#B8C5D0' }}>
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold" style={{ background: 'rgba(255,255,255,0.06)', color: '#B8C5D0' }}>
                   {biomeIcon} {api.biome}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">{detail.planet_name}</h1>
-            <p className="text-sm mt-1" style={{ color: '#7A8A99' }}>
-              Owned by <span className="text-white font-semibold">{detail.owner_name || `#FDW${detail.fdv_user_id}`}</span>
-              {api && <span> · {api.size} · {api.mineralDensity} minerals</span>}
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-black text-white truncate">{detail.planet_name}</h1>
+            <p className="text-[11px] sm:text-sm mt-0.5 truncate" style={{ color: '#7A8A99' }}>
+              <span className="text-white font-semibold">{detail.owner_name || `#FDW${detail.fdv_user_id}`}</span>
+              {api && <span> · {api.size}</span>}
             </p>
             {api && (
               <p className="text-xs mt-1" style={{ color: '#7A8A99' }}>

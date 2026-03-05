@@ -10,10 +10,9 @@ type Props = {
 };
 
 const options: { value: TimeFilterValue; label: string }[] = [
-  { value: '7d', label: '7 Days' },
-  { value: '30d', label: '30 Days' },
-  { value: '90d', label: '90 Days' },
-  { value: 'all', label: 'All Time' },
+  { value: '7d', label: '7D' },
+  { value: '30d', label: '30D' },
+  { value: 'all', label: 'All' },
 ];
 
 export default function TimeFilter({ value, onChange }: Props) {
@@ -32,15 +31,15 @@ export default function TimeFilter({ value, onChange }: Props) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1">
       {options.map((opt) => (
         <button
           key={opt.value}
           onClick={() => handleChange(opt.value)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+          className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors ${
             current === opt.value
-              ? 'bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20'
-              : 'text-[#A0AEC0] hover:text-white hover:bg-white/5 border border-transparent'
+              ? 'bg-[#00FF88] text-black'
+              : 'text-[#7A8A99] hover:text-white'
           }`}
         >
           {opt.label}
