@@ -22,14 +22,17 @@ type Props = { params: Promise<{ fdvId: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { fdvId } = await params;
-  const player = await getPlayerInfo(Number(fdvId));
+  const [player, batch] = await Promise.all([
+    getPlayerInfo(Number(fdvId)),
+    getPlayerBatch(Number(fdvId)),
+  ]);
   if (!player) return { title: 'Player Not Found' };
-  const summary = await getPlayerScapeSummary(Number(fdvId));
   const name = player.avatar_name || `#FDW${fdvId}`;
+  const s = batch?.summary;
   return {
-    title: `${name} — Level ${summary?.max_level || '?'} | Freedom Player Hub`,
-    description: `${summary?.wins || 0}W / ${summary?.losses || 0}L · ${summary?.total_kills || 0} monsters slain · Win rate ${summary?.win_rate || 0}%`,
-    openGraph: { title: `${name} — Freedom Player Hub`, description: `${summary?.wins || 0} wins · ${summary?.total_kills || 0} kills` },
+    title: `${name} — Level ${s?.max_level || '?'} | Freedom Player Hub`,
+    description: s ? `${s.wins}W / ${s.losses}L · ${s.total_kills} monsters slain · Win rate ${s.win_rate}%` : 'Freedom Player Hub',
+    openGraph: { title: `${name} — Freedom Player Hub`, description: s ? `${s.wins} wins · ${s.total_kills} kills` : '' },
   };
 }
 
