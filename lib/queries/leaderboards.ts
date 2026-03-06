@@ -175,10 +175,25 @@ export async function getTopEarners(timeFilter: TimeFilter = 'all-time') {
 export async function getGlobalStats() {
   const rows = await neonSql`
     SELECT
-      (SELECT COUNT(DISTINCT fdv_id) FROM web_card_game_prod.users)::int as total_players,
-      (SELECT COUNT(*) FROM web_card_game_prod.game_match_resulted)::int as total_matches,
-      (SELECT COUNT(DISTINCT fdv_user_id) FROM web_freedom_planet_prod.planet_activated)::int as total_planet_users,
-      (SELECT COUNT(*) FROM web_freedom_planet_prod.planet_activated)::int as total_planets
+      (SELECT COUNT(*)::int FROM web_card_game_prod.game_match_resulted
+        WHERE timestamp >= DATE_TRUNC('month', CURRENT_DATE)) as matches_this_month,
+      (SELECT COUNT(*)::int FROM web_card_game_prod.game_match_resulted
+        WHERE is_rifts_mode = true AND match_result = 'Win'
+        AND timestamp >= DATE_TRUNC('month', CURRENT_DATE)) as rifts_won_month,
+      (SELECT COUNT(*)::int FROM web_card_game_prod.game_match_resulted
+        WHERE is_rifts_mode = true
+        AND timestamp >= DATE_TRUNC('month', CURRENT_DATE)) as rifts_total_month,
+      (SELECT COUNT(*)::int FROM web_freedom_planet_prod.planet_structure_built
+        WHERE timestamp >= DATE_TRUNC('month', CURRENT_DATE)) as structures_month,
+      (SELECT COUNT(*)::int FROM web_card_game_prod.game_match_resulted
+        WHERE is_nexus = true
+        AND timestamp >= DATE_TRUNC('month', CURRENT_DATE)) as nexus_month
   `;
-  return rows[0] as { total_players: number; total_matches: number; total_planet_users: number; total_planets: number };
+  return rows[0] as {
+    matches_this_month: number;
+    rifts_won_month: number;
+    rifts_total_month: number;
+    structures_month: number;
+    nexus_month: number;
+  };
 }

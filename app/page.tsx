@@ -4,7 +4,7 @@ import LeaderboardTable from '@/components/LeaderboardTable';
 import PlanetHeroCard from '@/components/PlanetHeroCard';
 import Link from 'next/link';
 import { getGlobalStats, getTopPlayersByKills, getTopPlayersByXP, getTopPlayersByWins } from '@/lib/queries/leaderboards';
-import { getTopPlanetsByStructures, getTopUsersByFDS, getPlanetGlobalStats } from '@/lib/queries/planet-leaderboards';
+import { getTopPlanetsByStructures, getTopUsersByFDS } from '@/lib/queries/planet-leaderboards';
 import { unstable_cache } from 'next/cache';
 
 export const revalidate = 600; // 10 min ISR — home page data doesn't change fast
@@ -19,21 +19,20 @@ export default async function HomePage() {
   // All home page data cached for 10 minutes — single cache key
   const getHomeData = unstable_cache(
     async () => {
-      const [stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats] = await Promise.all([
+      const [stats, topKills, topXP, topWins, topPlanets, topFDS] = await Promise.all([
         getGlobalStats(),
         getTopPlayersByKills('all-time'),
         getTopPlayersByXP('all-time'),
         getTopPlayersByWins('all-time'),
         getTopPlanetsByStructures('all-time'),
         getTopUsersByFDS('all-time'),
-        getPlanetGlobalStats(),
       ]);
-      return { stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats };
+      return { stats, topKills, topXP, topWins, topPlanets, topFDS };
     },
     ['home-page-data'],
     { revalidate: 600 }
   );
-  const { stats, topKills, topXP, topWins, topPlanets, topFDS, planetStats } = await getHomeData();
+  const { stats, topKills, topXP, topWins, topPlanets, topFDS } = await getHomeData();
 
   const killEntries = topKills.slice(0, 5).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: Number(e.total_kills) || 0, level: e.max_level }));
   const xpEntries = topXP.slice(0, 5).map(e => ({ fdv_id: e.fdv_id ?? 0, avatar_name: e.avatar_name, stat: Number(e.total_xp) || 0, level: e.max_level }));
@@ -54,12 +53,12 @@ export default async function HomePage() {
         <div className="flex justify-center relative z-10 px-2"><SearchBar placeholder="Search by player name or ID..." /></div>
       </section>
 
-      {/* Global Stats */}
+      {/* Monthly Stats */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-        <StatCard label="Total Players" value={stats?.total_players || 0} icon="👥" color="#00FF88" />
-        <StatCard label="Total Matches" value={stats?.total_matches || 0} icon="⚔️" color="#FFFFFF" />
-        <StatCard label="Planet Owners" value={planetStats?.total_users || 0} icon="🌍" color="#3B82F6" />
-        <StatCard label="Planets" value={planetStats?.total_planets || 0} icon="🪐" color="#A78BFA" />
+        <StatCard label="Matches" value={stats?.matches_this_month || 0} icon="⚔️" color="#FFFFFF" subtitle="This Month" />
+        <StatCard label="Rifts Won" value={stats?.rifts_won_month || 0} icon="🌀" color="#00FF88" subtitle={stats?.rifts_total_month ? `${Math.round((stats.rifts_won_month / stats.rifts_total_month) * 100)}% win rate` : ''} />
+        <StatCard label="Structures Built" value={stats?.structures_month || 0} icon="🔷" color="#3B82F6" subtitle="This Month" />
+        <StatCard label="Nexus Battles" value={stats?.nexus_month || 0} icon="🏆" color="#A78BFA" subtitle="This Month" />
       </section>
 
       {/* ⚔️ THE SCAPE SECTION */}

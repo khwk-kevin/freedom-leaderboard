@@ -4,10 +4,11 @@ type Props = {
   color?: string;
   barPercent?: number;
   subtext?: string;
+  subtitle?: string;
   icon?: string;
 };
 
-export default function StatCard({ label, value, color = '#00FF88', barPercent, subtext, icon }: Props) {
+export default function StatCard({ label, value, color = '#00FF88', barPercent, subtext, subtitle, icon }: Props) {
   return (
     <div className="bg-[#0D1215] border border-[#1E2529] p-3 sm:p-4 rounded-xl sm:rounded-2xl hover:border-[#2A2A2A] transition-colors group">
       <div className="text-[10px] sm:text-xs text-[#A0AEC0] font-bold uppercase tracking-wider mb-1 sm:mb-2">{icon && <span className="mr-1">{icon}</span>}{label}</div>
@@ -17,6 +18,7 @@ export default function StatCard({ label, value, color = '#00FF88', barPercent, 
       >
         {typeof value === 'number' ? value.toLocaleString() : value}
       </div>
+      {subtitle && <div className="text-[10px] text-[#7A8A99] font-medium">{subtitle}</div>}
       {subtext && <div className="text-[10px] text-[#B8C5D0]">{subtext}</div>}
       {barPercent !== undefined && (
         <div className="mt-3 w-full h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
